@@ -2,9 +2,9 @@
   "name": "e-commerce-backend",
   "version": "1.0.0",
   "description": "Repository of the first react project: sportswear e-commerce",
-  "main": "./src/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node .",
+    "start": "node src/index.js",
     "dev": "nodemon ."
   },
   "repository": {
