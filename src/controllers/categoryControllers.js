@@ -1,5 +1,5 @@
 const Category=require('../models/category');
-const validationResult=require('express-validator');
+const {validationResult}=require('express-validator');
 
 exports.createCategory=async(req,res)=>{
 

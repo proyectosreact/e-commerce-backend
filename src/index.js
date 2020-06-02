@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 4000;
 //Import route user
 app.use('/api/users' , require( './routes/user' ));
 app.use('/api/auth' , require( './routes/auth' ));
+app.use('/api/caategory',require('./routes/category'));
 
 //start app
 app.listen( PORT, () =>{
