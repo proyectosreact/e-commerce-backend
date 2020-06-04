@@ -2,6 +2,7 @@ const User = require('../models/user');
 const bcryptjs = require ('bcryptjs');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const status = require('../config/config');
 
 
 exports.createUser = async ( req, res ) => {
@@ -72,7 +73,6 @@ exports.listUsers = async (req, res) => {
         res.status(400).json({ errors: errors.array() })
     };
     try {
-        const since = parseInt( req.query.since || 0 );
         const users = await User.find();
         const total = await User.countDocuments();
 
