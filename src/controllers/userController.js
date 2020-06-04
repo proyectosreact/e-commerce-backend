@@ -64,3 +64,21 @@ exports.createUser = async ( req, res ) => {
         
     }
 }
+
+exports.listUsers = async (req, res) => {
+    //check for mistakes
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        res.status(400).json({ errors: errors.array() })
+    };
+    try {
+        const since = parseInt( req.query.since || 0 );
+        const users = await User.find();
+        const total = await User.countDocuments();
+
+        return res.json({ code: status.OK, users, total });
+        
+    } catch (error) {
+        return res.json({ code: status.ERROR, message: 'Internal server Error' });
+    }
+}
