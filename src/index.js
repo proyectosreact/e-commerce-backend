@@ -1,15 +1,18 @@
 const express = require('express');
 const connectedDB = require('./config/dataBase');
+const cors = require('cors');
 
 
 //make server
 const app = express();
+
 
 //conect DB
 connectedDB();
 
 //Express.json
 app.use(express.json({ extended: true }));
+app.use(cors());
 
 //PORT app
 const PORT = process.env.PORT || 4000;
