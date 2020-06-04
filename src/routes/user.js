@@ -14,7 +14,7 @@ router.post( '/', [
 ],
  userController.createUser )
 
- router.post('/list', userController.listUsers);
+ router.get('/list', userController.listUsers);
 
 
 module.exports = router;
