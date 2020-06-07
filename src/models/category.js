@@ -2,7 +2,7 @@ const mongoose= require('mongoose');
 const  CategorySchema=mongoose.Schema({
     categoryName:{
         subcategory:{
-            producto:{
+            product:{
                 sku:{
                     type:String,
                     require:true

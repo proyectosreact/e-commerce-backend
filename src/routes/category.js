@@ -4,9 +4,9 @@ const categoryController=require('../controllers/categoryControllers');
 const {check}=require('express-validator');
 
 
-router.post('/',[
-    check('categoryname', 'The name of category is required').not().isEmpty(),
-    check('description','The description is required').not().isEmpty()
-],categoryController.createCategory)
+router.post('/',categoryController.createCategory)
 
+router.get('/:categoryId',[
+    check('Id','it`s need Id of category').not().isEmpty()
+],categoryController.queryCategory)
 module.exports=router;
