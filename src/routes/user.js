@@ -14,5 +14,13 @@ router.post( '/', [
 ],
  userController.createUser )
 
+ //Send email to verifid
+router.get('/sendMail', userController.sendEmail);
+
+//Verify Email with link
+router.get('/verify', userController.verifyEmail);
+
+//Get Name from user
+router.get('/home', userController.showUserName);
 
 module.exports = router;
