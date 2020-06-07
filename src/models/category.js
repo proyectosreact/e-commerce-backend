@@ -3,20 +3,11 @@ const  CategorySchema=mongoose.Schema({
     categoryName:{
         subcategory:{
             product:{
-                sku:{
-                    type:String,
-                    require:true
-                },
-             description:{
-                 type:String,
-                 require:true
-            },
-             size:{
-                 type:String,
-                 require:true
-             }
+                sku:String,
+             description:String,
+             size:String   
         }}},
-    description:{
+    descriptionCategory:{
         type:String,
         require: true,
         trim:true
@@ -27,4 +18,4 @@ const  CategorySchema=mongoose.Schema({
         trim:true
     }
 })
-module.exports=mongoose.model('Category',CategorySchema)
+module.exports = mongoose.model('Category',CategorySchema)

@@ -8,19 +8,28 @@ exports.createCategory=async(req,res)=>{
     if(!errors.isEmpty()){
        return res.status(400).json({errors:errors.array()})
     }
-    const {sku,product_description,size,description,urlImage}=req.body;
-    console.log(description)
-    try{
-        let category=await Category.findOne({description})
 
-        if(description){
-            return res.status(400).json({
-                msg: 'Category already exist'
-            });
+    let descriptionCategory=req.body.descriptionCategory
+    console.log(descriptionCategory)
+    try{
+        let category=await Category.findOne({descriptionCategory})
+
+        if(category){
+            console.log('This encontrad thi category',category)
+            return res.status(400).json({ msg: 'Category already exist'});
         }
-        category=new Category(req.body);
-        await category.save()
-        res.status(200).send('that saverd a category');
+        category=new Category()
+        category.categoryName.subcategory.product.sku=req.body.sku
+        category.categoryName.subcategory.product.description=req.body.description
+        category.categoryName.subcategory.product.size=req.body.size
+        category.descriptionCategory=req.body.descriptionCategory
+        category.urlImage=req.body.urlImage
+
+        await category.save((err, categoryStored)=>{
+            if (err) res.status(500).send({message: `this error of save ${err}`})
+    
+            res.status(200).send({category: categoryStored})
+        })
 
     }
     catch(error){
@@ -30,5 +39,56 @@ exports.createCategory=async(req,res)=>{
 }
 
 exports.queryCategory=async(req,res)=>{
+    Category.find({},(err,categorys)=>{
+        if (err) {
+            
+           return res.status(500).send({message:`Erro this pettition ${err}`})
+        }
+        if (!categorys) {
+          return res.status(404).send({message: `The categorys not exist `})
+            
+        }
+        res.send(200, {categorys})
+    })
+}
+
+
+
+exports.queryCategoryId=async(req,res)=>{
+        let categoryId=req.params.IdCategory
+    Category.findById(categoryId,(err,category)=>{
+        if (err) {
+            
+           return res.status(500).send({message:`Erro this petition ${err}`})
+        }
+        if (!category) {
+          return res.status(404).send({message: `The category not exist `})
+            
+        }
+        res.send(200, {category})
+    })
+}
+exports.updateCategoryId=async(req,res)=>{
+    let categoryId=req.params.IdCategory
+    let update=req.body
     
+Category.findByIdAndUpdate(categoryId,update,(err,category)=>{
+    if (err) {
+        
+       return res.status(500).send({message:`Erro on update category ${err}`})
+    }
+    
+    res.send(200, {category})
+})
+}
+exports.deleteCategoryId=async(req,res)=>{
+    let categoryId=req.params.productId 
+     Category.findById(categoryId,(err,category)=>{
+         if(err) res.status(500).send({message:`Error on delete Category${err}`})
+
+         category.remove(err=>{
+             if(err) res.status(500).send({message: 'Erro this delete category'})
+             res.status(200).send({message:'This product has delete'})
+         })
+     })
 }

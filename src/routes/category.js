@@ -6,7 +6,10 @@ const {check}=require('express-validator');
 
 router.post('/',categoryController.createCategory)
 
-router.get('/:categoryId',[
-    check('Id','it`s need Id of category').not().isEmpty()
-],categoryController.queryCategory)
+router.get('/',categoryController.queryCategory)
+router.get('/:IdCategory',categoryController.queryCategoryId)
+
+router.put('/:IdCategory',categoryController.updateCategoryId)
+router.delete('/:IdCategory',categoryController.deleteCategoryId)
+
 module.exports=router;
