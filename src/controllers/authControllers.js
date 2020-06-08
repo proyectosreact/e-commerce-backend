@@ -32,7 +32,6 @@ exports.authUser = async (req, res) =>{
             user: {
                 id: user.id
             }
-
         };
 
         //Sing JWT
@@ -45,11 +44,7 @@ exports.authUser = async (req, res) =>{
 
             //Confirmation Msg
             res.json({ token });
-
         });
-
-
-
     } catch (error) {
         console.log(error)
     }

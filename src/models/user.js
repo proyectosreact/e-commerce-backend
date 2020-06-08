@@ -11,18 +11,22 @@ const UserSchema = mongoose.Schema({
         type: String,
         require: true,
         trim: true,
-        unique: true
+        unique: true,
+        lowercase: true
     },
     password:{
         type: String,
         require: true,
         trim: true
     },
-    registry:{
-        type: Date,
-        default: Date.now() //Registry date
-    },
     direction: [{}],
+    resetLink:{
+        data: String,
+        default: ''
+    },
+    verify: false,
+},{
+    timestamps:true
 });
 
 module.exports = mongoose.model('User', UserSchema)
