@@ -4,7 +4,7 @@
   "description": "Repository of the first react project: sportswear e-commerce",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",

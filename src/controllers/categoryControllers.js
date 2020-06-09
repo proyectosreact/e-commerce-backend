@@ -9,20 +9,20 @@ exports.createCategory=async(req,res)=>{
        return res.status(400).json({errors:errors.array()})
     }
 
-    let descriptionCategory=req.body.descriptionCategory
-    console.log(descriptionCategory)
+    let categoryName=req.body.categoryName
+    console.log(categoryName)
     try{
-        let category=await Category.findOne({descriptionCategory})
+        let category=await Category.findOne(categoryName)
 
         if(category){
             console.log('This encontrad thi category',category)
             return res.status(400).json({ msg: 'Category already exist'});
         }
         category=new Category()
-        category.categoryName.subcategory.product.sku=req.body.sku
-        category.categoryName.subcategory.product.description=req.body.description
-        category.categoryName.subcategory.product.size=req.body.size
-        category.descriptionCategory=req.body.descriptionCategory
+        category.categoryName=req.body.categoryName
+        category.subcategory.subCategoryName=req.body.subCategoryName
+        category.subcategory.product.description=req.body.subCategoryProductDescription
+        category.subcategory.product.sku=req.body.subCategoryProductSku
         category.urlImage=req.body.urlImage
 
         await category.save((err, categoryStored)=>{
