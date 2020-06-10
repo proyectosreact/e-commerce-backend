@@ -1,30 +1,19 @@
-const mongoose= require('mongoose');
-const  CategorySchema=mongoose.Schema({
-    categoryName:{
-        subcategory:{
-            producto:{
-                sku:{
-                    type:String,
-                    require:true
-                },
-             description:{
-                 type:String,
-                 require:true
-            },
-             size:{
-                 type:String,
-                 require:true
-             }
-        }}},
-    description:{
-        type:String,
-        require: true,
-        trim:true
-    },
-    urlImage:{
-        type: String,
+'use strict'
+const mongoose= require('mongoose')
+const Schema= mongoose.Schema;
+const CategorySchema=new Schema({
+    category:{
+        categoryName: String,
         require:true,
-        trim:true
-    }
+        timestamp:true,
+        subcategory:[{
+            subCategoryName: String,
+            produt:[{description: String, sku: String, timestamp:true}]
+        }]
+    },
+    UrlImge:{
+        type:String,
+        require:true
+    }    
 })
-module.exports=mongoose.model('Category',CategorySchema)
+module.exports = mongoose.model('Category',CategorySchema)
