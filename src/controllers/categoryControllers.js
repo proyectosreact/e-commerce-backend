@@ -1,6 +1,6 @@
 const Category=require('../models/category');
 
-const validationResult =require('express-validator');
+const {validationResult}=require('express-validator');
 
 
 
@@ -12,33 +12,51 @@ exports.createCategory=async(req,res)=>{
        return res.status(400).json({errors:errors.array()})
     }
 
-    let categoryName=req.body.categoryName
-    console.log(categoryName)
+    
+    const {name} = req.body.category;
+    
+    
+    console.log({name});    
+    //validamos si existe en la base
+    
     try{
-        let category=await Category.findOne(categoryName)
+    const categoryName = await Category.query().findOne({name});
+    if (categoryName) {
+        return res.status(400).json({msg: 'mal'});
+    }
+    categoryName = new Category(req.body);
+    await categoryName.save();
+    /*
+        let category=await Category.findOne({categoryName})
 
         if(category){
             console.log('This encontrad thi category',category)
             return res.status(400).json({ msg: 'Category already exist'});
         }
-        category=new Category()
-        category.categoryName=req.body.categoryName
+        category=new Category(req.body)
+        
+        
+        /*
         category.subcategory.subCategoryName=req.body.subCategoryName
         category.subcategory.product.description=req.body.subCategoryProductDescription
-        category.subcategory.product.sku=req.body.subCategoryProductSku
-        category.urlImage=req.body.urlImage
-
+        category.subcategory.product.sku=req.body.subCategoryProductSku*/
+       /*
+       console.log(req.body)
+       await category.save();
+       /*
         await category.save((err, categoryStored)=>{
             if (err) res.status(500).send({message: `this error of save ${err}`})
     
             res.status(200).send({category: categoryStored})
         })
 
+        res.status(200).json({message:"inserted"})/*/
     }
     catch(error){
         console.log(error);
         res.status(400).send('there was a mistake');
     }
+    
 }
 
 exports.queryCategory=async(req,res)=>{
