@@ -1,6 +1,7 @@
 const Category=require('../models/category');
 
 const {validationResult}=require('express-validator');
+const { json } = require('express');
 
 
 
@@ -13,16 +14,16 @@ exports.createCategory=async(req,res)=>{
     }
 
     
-    const {name} = req.body.category;
+    const name= req.body.category.name;
     
     
-    console.log({name});    
+    console.log(name);    
     //validamos si existe en la base
     
     try{
-    const categoryName = await Category.query().findOne({name});
+    let categoryName = await Category.findOne({"category.name":name});
     if (categoryName) {
-        return res.status(400).json({msg: 'mal'});
+        return res.status(400).json({msg: 'This category exist!'});
     }
     categoryName = new Category(req.body);
     await categoryName.save();
@@ -49,8 +50,8 @@ exports.createCategory=async(req,res)=>{
     
             res.status(200).send({category: categoryStored})
         })
-
-        res.status(200).json({message:"inserted"})/*/
+*/
+        res.status(200).json({message:"inserted the category"})
     }
     catch(error){
         console.log(error);
@@ -69,7 +70,7 @@ exports.queryCategory=async(req,res)=>{
           return res.status(404).send({message: `The categorys not exist `})
             
         }
-        res.send(200, {categorys})
+        res.status(200).send({categorys})
     })
 }
 
