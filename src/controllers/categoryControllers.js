@@ -9,21 +9,43 @@ exports.createCategory = async(req, res) => {
         return res.status(400).json({ errors: errors.array() })
     }
 
+<<<<<<< HEAD
     let descriptionCategory = req.body.descriptionCategory
     console.log(descriptionCategory)
     try {
         let category = await Category.findOne({ descriptionCategory })
+=======
+    let categoryName=req.body.categoryName
+    console.log(categoryName)
+    try{
+        let category=await Category.findOne(categoryName)
+>>>>>>> 5b9015ae40ffa44e8b969a8d4a276146c18544da
 
         if (category) {
             console.log('This encontrad thi category', category)
             return res.status(400).json({ msg: 'Category already exist' });
         }
+<<<<<<< HEAD
         category = new Category()
         category.categoryName.subcategory.product.sku = req.body.sku
         category.categoryName.subcategory.product.description = req.body.description
         category.categoryName.subcategory.product.size = req.body.size
         category.descriptionCategory = req.body.descriptionCategory
         category.urlImage = req.body.urlImage
+=======
+        category=new Category()
+        category.categoryName=req.body.categoryName
+        category.subcategory.subCategoryName=req.body.subCategoryName
+        category.subcategory.product.description=req.body.subCategoryProductDescription
+        category.subcategory.product.sku=req.body.subCategoryProductSku
+        category.urlImage=req.body.urlImage
+
+        await category.save((err, categoryStored)=>{
+            if (err) res.status(500).send({message: `this error of save ${err}`})
+    
+            res.status(200).send({category: categoryStored})
+        })
+>>>>>>> 5b9015ae40ffa44e8b969a8d4a276146c18544da
 
         await category.save((err, categoryStored) => {
             if (err) res.status(500).send({ message: `this error of save ${err}` })
