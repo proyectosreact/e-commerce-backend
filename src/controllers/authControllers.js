@@ -30,7 +30,8 @@ exports.authUser = async (req, res) =>{
         //if everything is correct Create and sing the JWT
         const payload = {
             user: {
-                id: user.id
+                id: user.id,
+                email: user.email
             }
         };
 
@@ -44,6 +45,8 @@ exports.authUser = async (req, res) =>{
 
             //Confirmation Msg
             res.json({ token });
+            // const decodeToken = jwt.verify(token,process.env.SECRET);
+            // console.log(decodeToken)
         });
     } catch (error) {
         console.log(error)
