@@ -27,31 +27,7 @@ exports.createCategory=async(req,res)=>{
     }
     categoryName = new Category(req.body);
     await categoryName.save();
-    /*
-        let category=await Category.findOne({categoryName})
-
-        if(category){
-            console.log('This encontrad thi category',category)
-            return res.status(400).json({ msg: 'Category already exist'});
-        }
-        category=new Category(req.body)
-        
-        
-        /*
-        category.subcategory.subCategoryName=req.body.subCategoryName
-        category.subcategory.product.description=req.body.subCategoryProductDescription
-        category.subcategory.product.sku=req.body.subCategoryProductSku*/
-       /*
-       console.log(req.body)
-       await category.save();
-       /*
-        await category.save((err, categoryStored)=>{
-            if (err) res.status(500).send({message: `this error of save ${err}`})
-    
-            res.status(200).send({category: categoryStored})
-        })
-*/
-        res.status(200).json({message:"inserted the category"})
+     res.status(200).json({message:"inserted the category"})
     }
     catch(error){
         console.log(error);
