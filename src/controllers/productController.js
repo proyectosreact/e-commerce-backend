@@ -1,5 +1,5 @@
 const Category=require('../models/category');
-const {validationResult}=require('express-validator');
+const {validationResult}=require('express-validator'); //Faltan hacer validaciones
 
 exports.createProduct=async(req,res)=>{
 
@@ -9,29 +9,23 @@ exports.createProduct=async(req,res)=>{
        return res.status(400).json({errors:errors.array()})
     }
 
-    let descriptionProduct=req.body.descriptionProduct
+    let product=req.body
 
-    console.log(descriptionCategory)
-    console.log(descriptionProduct)
+    console.log(product)
+
     try{
-        let product=await Category.findOne({descriptionProduct})
+        let products = await Category.findOne({}, { projection: {categoryName,subcategory,produt}})
 
-        if(product){
-            console.log('This encontrad thi product',product)
+        if(products){
+            console.log('Product already exist',product)
             return res.status(400).json({ msg: 'Product already exist'});
         }
-        product=new Category()
-        
-        product.categoryName.subcategory.product.sku=req.body.sku
-        product.categoryName.subcategory.product.description=req.body.descriptionProduct
-        product.categoryName.subcategory.product.size=req.body.size
-        product.descriptionCategory=req.body.descriptionCategory
-        product.urlImage=req.body.urlImage
 
-        await product.save((err, productStored)=>{
+        await products.save((err, productStored)=>{
+            
             if (err) res.status(500).send({message: `this error of save ${err}`})
-    
-            res.status(200).send({product: productStored})
+            res.status(200).json({ msg: 'Product add'});
+
         })
 
     }
