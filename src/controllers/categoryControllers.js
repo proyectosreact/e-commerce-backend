@@ -1,7 +1,6 @@
 const Category=require('../models/category');
-
 const {validationResult}=require('express-validator');
-const { json } = require('express');
+
 
 exports.createCategory = async(req, res) => {
 
@@ -11,26 +10,24 @@ exports.createCategory = async(req, res) => {
         return res.status(400).json({ errors: errors.array() })
     }
  
-    const name= req.body.category.name;
+    const {category} = req.body;
+    console.log({ category });
     
-    
-    console.log(name);    
-    //validamos si existe en la base
-    
-    try{
-    let categoryName = await Category.findOne({"category.name":name});
-    if (categoryName) {
-        return res.status(400).json({msg: 'This category exist!'});
-    }
-    categoryName = new Category(req.body);
-    await categoryName.save();
-     res.status(200).json({message:"inserted the category"})
-    }
-    catch(error){
+    try {
+        let categoryName = await Category.findOne({ category });
+
+        if(categoryName){
+            return res.status(400).json({msg: 'Category already exists'});
+        }
+
+        categoryName = new Category(req.body);
+        await categoryName.save()
+
+        res.json({status: true, msg: 'The category was inserted correctly'});
+    } catch (error) {
         console.log(error);
-        res.status(400).send('there was a mistake');
-    }
-    
+        res.status(400).json({msg: 'There was a mistake'});
+    }   
 }
 
 exports.queryCategory = async(req, res) => {
