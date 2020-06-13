@@ -7,6 +7,7 @@ const status = require('../config/config');
 
 
 
+//Create the user and send email to verify account
 exports.createUser = async ( req, res ) => {
 
 
@@ -59,24 +60,6 @@ exports.createUser = async ( req, res ) => {
 
 
         });
-        
-    } catch (error) {
-        console.log(error);
-        res.status(400).send('There was a mistake');
-        
-    }
-}
-
-// verificamos por correo la cuenta de mail al realizar el signup
-exports.sendEmail = async (req, res) =>{
-    
-    
-    const {email} = req.body;
-    console.log(email);
-    let userID = await User.findOne({email});
-    console.log(userID._id);
-    
-    try {
         const smtpTransport = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -86,7 +69,7 @@ exports.sendEmail = async (req, res) =>{
           });
         
         console.log(process.env.HOST);
-        const link="http://"+process.env.HOST+"/api/users/verify?id="+userID._id;
+        const link="http://"+process.env.HOST+"/api/users/verify?id="+user._id;
         
         const mailOptions={
             to : email,
@@ -100,18 +83,60 @@ exports.sendEmail = async (req, res) =>{
             }
             else {
                 console.log("Message sent: ");
-                res.end("sent");
+                res.send("Please check your mail, we sent mail to verify account");
             }
         });
+       
+        
     } catch (error) {
         console.log(error);
         res.status(400).send('There was a mistake');
+        
     }
+}
+// user required reset password, we send mail to verify
+exports.forgetPassword = async (req, res) =>{   
     
+    const {email} = req.body;
+    let user = await User.findOne({email}, (err, user)=>{
+        if(err || !user){
+            return res.status(400).json({error: 'The user does not exists'})
+        }
+        const token = jwt.sign({_id: user.id}, process.env.SECRET,{expiresIn:'20m'});
+        console.log(token)
+
+        const smtpTransport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASS
+            }
+          });        
+        console.log(process.env.HOST);
+        const link="http://"+process.env.HOST+"/api/users/resetPassword?token="+token;
+        
+        const mailOptions={
+            to : email,
+            subject : "Reset Password",
+            html : "Hello,<br> Please Click on the link to set a new password.<br><a href="+link+">Click here</a>"
+        }
+        smtpTransport.sendMail(mailOptions, function (error, response) {
+            if (error) {
+                console.log(error);
+                res.end("error");
+            }
+            else {
+                console.log("Message sent: Reset Password ");
+                res.send("Please check your mail, we sent mail to reset password");
+            }
+        });
+    })
     
     
 }
+exports.resetPassword = async ( req, res) =>{
 
+}
 //confirmamos el click en el link del correo cambiamos el campo de verify en la base al validar la cuenta
 exports.verifyEmail = async (req, res) =>{
 
@@ -143,7 +168,7 @@ exports.verifyEmail = async (req, res) =>{
     {
         res.end("<h1>Request is from unknown source");
     }
-    res.redirection('/');
+    //res.redirection('/');
 };
 
 exports.showUserName = async (req, res, next) => {
@@ -168,3 +193,4 @@ exports.listUsers = async (req, res) => {
         return res.json({ code: status.ERROR, message: 'Internal server Error' });
     }
 }
+

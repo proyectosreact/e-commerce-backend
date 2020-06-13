@@ -20,8 +20,8 @@ const UserSchema = mongoose.Schema({
         trim: true
     },
     direction: [{}],
-    resetLink:{
-        data: String,
+    token:{
+        String: String,
         default: ''
     },
     verify: false,
