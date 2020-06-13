@@ -143,6 +143,7 @@ exports.verifyEmail = async (req, res) =>{
     {
         res.end("<h1>Request is from unknown source");
     }
+    res.redirection('/');
 };
 
 exports.showUserName = async (req, res, next) => {
