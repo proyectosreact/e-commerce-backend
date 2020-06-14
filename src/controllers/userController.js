@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const bcryptjs = require ('bcryptjs');
+const _ = require('lodash');
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const nodemailer= require('nodemailer');
@@ -97,13 +98,22 @@ exports.createUser = async ( req, res ) => {
 // user required reset password, we send mail to verify
 exports.forgetPassword = async (req, res) =>{   
     
+    //check for mistakes
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        res.status(400).json({ errors: errors.array() })
+    };
+
     const {email} = req.body;
-    let user = await User.findOne({email}, (err, user)=>{
+    try{
+    await User.findOne({email}, (err, user) => {
+
         if(err || !user){
-            return res.status(400).json({error: 'The user does not exists'})
-        }
-        const token = jwt.sign({_id: user.id}, process.env.SECRET,{expiresIn:'20m'});
-        console.log(token)
+            return res.status(400).json({error: "User with this email does not exists"})            
+        };
+        console.log(user._id);
+        token = jwt.sign({_id: user._id}, process.env.SECRET,{expiresIn:'20m'});
+        console.log(token);
 
         const smtpTransport = nodemailer.createTransport({
             service: 'gmail',
@@ -111,8 +121,8 @@ exports.forgetPassword = async (req, res) =>{
               user: process.env.EMAIL,
               pass: process.env.PASS
             }
-          });        
-        console.log(process.env.HOST);
+          });
+    
         const link="http://"+process.env.HOST+"/api/users/resetPassword?token="+token;
         
         const mailOptions={
@@ -126,16 +136,73 @@ exports.forgetPassword = async (req, res) =>{
                 res.end("error");
             }
             else {
-                console.log("Message sent: Reset Password ");
-                res.send("Please check your mail, we sent mail to reset password");
+                console.log("Message sent: ");
+                res.send("Please check your mail, we sent mail to verify account");
             }
         });
+        return user.updateOne({resetLink: token}, (err, success) =>{
+            if(err || !user){
+                return res.status(400).json({error: "User with this email does not exists"}); 
+            }else{
+                return res.json({msg: 'ok'})
+            }
+        })
     })
-    
-    
+    }catch(error){
+        console.log(error);
+        res.status(400).send('There was a mistake');
+    }
 }
+//set user to reset password
 exports.resetPassword = async ( req, res) =>{
+    
+    //check for mistakes
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        res.status(400).json({ errors: errors.array() })
+    };
 
+    const {resetLink, newPass, repeatNewPass} = req.body;
+
+    try{
+    if(resetLink){
+        jwt.verify(resetLink, process.env.SECRET, (error, decodedData) =>{
+            if(error){
+                return res.status(401).json({ msg: 'Incorrect token or it is expired' })
+            }
+        })
+    }else{
+        return res.status(401).json({error: "Autentication error!"})   
+    }
+    await User.findOne({resetLink}, (err, user)=>{
+        
+        if(err || !user){
+            return res.status(400).json({error: "User with this token does not exists."})            
+        }
+        const obj = {
+            password : newPass
+        }
+
+        /*check password
+        const differentPass = bcryptjs.compare( password, user.password );
+        if(correctPass){
+            return res.status(400).json({ msg: 'no podes poner el mismo password anterior' })
+        }*/    
+
+        user = _.extend(user, obj);
+        
+        user.save((err, result)=>{
+            if(err || !user){
+                return res.status(401).json({error: "reset password error"}); 
+            }else{
+                return res.status(200).json({msg: 'the password change ok'});
+            }
+        })
+    })
+    }catch(error){
+        console.log(error);
+        res.status(400).send('There was a mistake');
+    }
 }
 //confirmamos el click en el link del correo cambiamos el campo de verify en la base al validar la cuenta
 exports.verifyEmail = async (req, res) =>{
