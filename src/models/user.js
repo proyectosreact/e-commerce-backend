@@ -21,7 +21,7 @@ const UserSchema = mongoose.Schema({
     },
     direction: [{}],
     resetLink:{
-        data: String,
+        type: String,
         default: ''
     },
     verify: false,
