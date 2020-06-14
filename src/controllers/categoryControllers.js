@@ -69,8 +69,9 @@ exports.updateCategoryId = async(req, res) => {
 
             return res.status(500).send({ message: `Erro on update category ${err}` })
         }
-
-        res.send(200, { category })
+        console.log(category);
+        
+        //res.send(200, { category })
     })
 }
 

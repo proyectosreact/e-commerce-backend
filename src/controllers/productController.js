@@ -48,10 +48,12 @@ exports.queryProduct=async(req,res)=>{
            return res.status(500).send({message:`Erro this pettition ${err}`})
         }
         if (!products) {
-          return res.status(404).send({message: `The categorys not exist `})
+          return res.status(404).send({message: `The products not exist `})
             
         }
-        res.send(200, {products})
+        // res.send(200, {products})
+        console.log(products);
+        res.status(200).send({products});
     })
 }
 
@@ -63,9 +65,13 @@ Category.findById(productId,(err,products)=>{
        return res.status(500).send({message:`Erro this petition ${err}`})
     }
     if (!products) {
-      return res.status(404).send({message: `The category not exist `})
+      return res.status(404).send({message: `The product not exist `})
         
     }
     res.send(200, {products})
 })
+}
+
+exports.updateCategoryId = (req, res) => {        
+        res.send('UpdateProduct');
 }
