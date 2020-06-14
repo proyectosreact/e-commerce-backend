@@ -14,7 +14,8 @@ router.post( '/', [
 ],
  userController.createUser )
 
-router.post('/forgotPassword', userController.forgetPassword);
+router.put('/forgotPassword', userController.forgetPassword);
+router.put('/resetPassword', userController.resetPassword)
 //Verify Email with link
 router.get('/verify', userController.verifyEmail);
 
