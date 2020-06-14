@@ -23,7 +23,8 @@ app.use('/api/users' , require( './routes/user' ));
 app.use('/api/auth' , require( './routes/auth' ));
 app.use('/api/category',require('./routes/category'));
 
-app.use('/api/users/sendMail' , require( './routes/user' ));
+app.use('/api/users/forgotPassword' , require( './routes/user' ));
+app.use('/api/users/resetPassword' , require( './routes/user' ));
 app.use('/api/users/verify', require('./routes/user'));
 //app.use('/api/users/home', require('./routes/user'));
 app.use('/api/users/list', require('./routes/user'));
