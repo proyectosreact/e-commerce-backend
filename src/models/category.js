@@ -5,10 +5,10 @@ CategorySchema = new Schema({
         type: String,
         unique: true,
         required: 'Category is required',
-        subCategory:[{
+        subCategory:{
             name:{
             type:String,
-            product:[{
+            product:{
                 name:{
                     type:String,
                 },
@@ -22,8 +22,8 @@ CategorySchema = new Schema({
                 url:{
                     type:String,
                 }
-            }]}        
-        }],
+            }}        
+        }
     }},{
     timestamps:true}
 )
