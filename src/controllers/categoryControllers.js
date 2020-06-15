@@ -57,7 +57,7 @@ exports.queryCategoryId = async(req, res) => {
             return res.status(404).send({ message: `The category not exist ` })
 
         }
-        res.status(200).send({ category });
+        res.send(200, { category })
     })
 }
 exports.updateCategoryId = async(req, res) => {
@@ -65,24 +65,18 @@ exports.updateCategoryId = async(req, res) => {
     let update = req.body
 
     Category.findByIdAndUpdate(categoryId, update, (err, category) => {
-        if (!category) {
-            return res.status(404).json({message:'This category not exist'})
-        }
         if (err) {
 
             return res.status(500).send({ message: `Erro on update category ${err}` })
         }
 
-        res.status(200).json({ category })
+        res.send(200, { category })
     })
 }
 
 exports.deleteCategoryId=async(req,res)=>{
-    let categoryId=req.params.IdCategory
+    let categoryId=req.params.productId 
      Category.findById(categoryId,(err,category)=>{
-         if (!category) {
-             return res.status(500).json({message:'This Category in not find'})
-         }
          if(err) res.status(500).send({message:`Error on delete Category${err}`})
 
          category.remove(err=>{
