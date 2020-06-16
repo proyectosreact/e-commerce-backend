@@ -240,9 +240,21 @@ exports.verifyEmail = async (req, res) =>{
 
 exports.showUserName = async (req, res, next) => {
 
-    console.log('desde show');
-    let showNameUser = await User.find(req.query.id)
-    console.log(showNameUser);
+    //check for mistakes
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        res.status(400).json({ errors: errors.array() })
+    };
+
+    const {email, nombre} = req.body
+    try {
+        let showNameUser = await User.findOne({name})
+        console.log(showNameUser);
+        return res.json({code: status.OK, showNameUser})
+    } catch (error) {
+        return res.json({ code: status.ERROR, message: 'Internal server Error' });
+    }
+   
 };
 exports.listUsers = async (req, res) => {
     //check for mistakes

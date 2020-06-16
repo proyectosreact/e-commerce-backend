@@ -43,9 +43,6 @@ exports.queryCategory = async(req, res) => {
         res.status(200).send({categorys})
     })
 }
-
-
-
 exports.queryCategoryId = async(req, res) => {
     let categoryId = req.params.IdCategory
     Category.findById(categoryId, (err, category) => {
@@ -73,7 +70,6 @@ exports.updateCategoryId = async(req, res) => {
         res.send(200, { category })
     })
 }
-
 exports.deleteCategoryId=async(req,res)=>{
     let categoryId=req.params.IdCategory
      Category.findById(categoryId,(err,category)=>{
