@@ -7,8 +7,7 @@ const {check}=require('express-validator');
 
 router.post('/',categoryController.createCategory)
 
-router.post('/',[
-    check('category', 'The name is required').not().isEmpty()],categoryController.createCategory)
+
 
 router.get('/',categoryController.queryCategory)
 router.get('/:IdCategory',categoryController.queryCategoryId)
