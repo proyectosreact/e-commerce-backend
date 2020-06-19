@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 const Category = require('../models/category');
 
 const { validationResult } = require('express-validator');
 const { json } = require('express');
+=======
+const Category=require('../models/category');
+const {validationResult}=require('express-validator');
+
+>>>>>>> c33a9d7a0fd1898be7ae68ca8af08ad14592b5ac
 
 exports.createCategory = async(req, res) => {
 
@@ -10,6 +16,7 @@ exports.createCategory = async(req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
     }
+<<<<<<< HEAD
 
     const { category } = req.body.category;
 
@@ -28,6 +35,27 @@ exports.createCategory = async(req, res) => {
         console.log(error);
         res.status(400).send('there was a mistake');
     }
+=======
+ 
+    const {category} = req.body;
+    console.log({ category });
+    
+    try {
+        let categoryName = await Category.findOne({ category });
+
+        if(categoryName){
+            return res.status(400).json({msg: 'Category already exists'});
+        }
+
+        categoryName = new Category(req.body);
+        await categoryName.save()
+
+        res.json({status: true, msg: 'The category was inserted correctly'});
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({msg: 'There was a mistake'});
+    }   
+>>>>>>> c33a9d7a0fd1898be7ae68ca8af08ad14592b5ac
 }
 
 exports.queryCategory = async(req, res) => {
