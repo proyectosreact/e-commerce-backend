@@ -76,7 +76,7 @@ exports.updateCategoryId = async(req, res) => {
 }
 
 exports.deleteCategoryId=async(req,res)=>{
-    let categoryId=req.params.productId 
+    let categoryId=req.params.categoryId 
      Category.findById(categoryId,(err,category)=>{
          if(err) res.status(500).send({message:`Error on delete Category${err}`})
 

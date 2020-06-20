@@ -1,6 +1,7 @@
 const Category=require('../models/category');
 const {validationResult}=require('express-validator'); //Faltan hacer validaciones
 
+
 exports.createProduct=async(req,res)=>{
 
     const errors=validationResult(req);
@@ -36,6 +37,8 @@ exports.createProduct=async(req,res)=>{
 }
 
 exports.queryProduct=async(req,res)=>{
+    //let productId=req.params.IdProduct
+    //console.log(req.body);
     Category.find({},(err,products)=>{
         if (err) {
             
@@ -47,6 +50,9 @@ exports.queryProduct=async(req,res)=>{
         }
         // res.send(200, {products})
         console.log(products);
+        if(!products) {
+            return res.status(200).send({message: 'No hay productos'});
+        }
         res.status(200).send({products});
     })
 }
