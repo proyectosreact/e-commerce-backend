@@ -3,6 +3,9 @@ const {
   validationResult
 } = require("express-validator");
 const category = require("../models/category");
+const {
+  identity
+} = require("lodash");
 
 exports.createSubCategory = async (req, res) => {
   const errors = validationResult(req);
@@ -14,10 +17,20 @@ exports.createSubCategory = async (req, res) => {
   }
 
   const subCategory = req.body;
-  const IdCategory = req.params.IdCategory;
-  let existsubcategory = await Category.findOne({
-    subCategory: subCategory
+  const
+    //Utilizacion de req.query.#### pues determina hacer  una consulta con un body  en el post o en el put
+    IdCategory = req.query.IdCategory;
+
+  let existsubcategory = await Category.findById(IdCategory, (err, category) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'err this server'
+      });
+    }
+
   })
+
+  console.log(sub);
   if (existsubcategory) {
     return res.status(400).json({
       message: 'This subcategory exist'
@@ -37,6 +50,7 @@ exports.createSubCategory = async (req, res) => {
           message: "this error",
         });
       }
+      console.log("este es el final")
       return res.status(200).json({
         subCategory,
       });

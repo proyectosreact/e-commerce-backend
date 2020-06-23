@@ -65,7 +65,8 @@ exports.queryCategory = async (req, res) => {
   })
 }
 exports.queryCategoryId = async (req, res) => {
-  let categoryId = req.params.IdCategory
+  let categoryId = req.query.IdCategory
+  console.log(categoryId)
   Category.findById(categoryId, (err, category) => {
     if (err) {
 
@@ -85,7 +86,7 @@ exports.queryCategoryId = async (req, res) => {
   })
 }
 exports.updateCategoryId = async (req, res) => {
-  let categoryId = req.params.IdCategory
+  let categoryId = req.query.IdCategory
   let update = req.body
 
   Category.findByIdAndUpdate(categoryId, update, (err, category) => {
@@ -103,7 +104,7 @@ exports.updateCategoryId = async (req, res) => {
   })
 }
 exports.deleteCategoryId = async (req, res) => {
-  let categoryId = req.params.IdCategory
+  let categoryId = req.query.IdCategory
   Category.findById(categoryId, (err, category) => {
     if (err) res.status(500).json({
       message: `Error on delete Category${err}`

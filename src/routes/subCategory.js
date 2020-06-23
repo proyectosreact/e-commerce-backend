@@ -7,7 +7,7 @@ const {
 
 //Fucnciona correcftamente  al momento  ingresar una subcategori por medio del id de la categoria
 
-router.put('/:IdCategory', subCategoryController.createSubCategory);
+router.post('/', subCategoryController.createSubCategory);
 
 //Ruta de  consultar correctamente los subcategorias del
 router.get('/:IdCategory', subCategoryController.querySubCategoryByIdCategory)
