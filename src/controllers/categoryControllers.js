@@ -28,10 +28,10 @@ exports.createCategory = async(req, res) => {
         }
         categoryName = new Category(req.body);
         await categoryName.save();
-        res.status(200).json({ message: "inserted the category" })
+        res.status(200).json({ message: "Category inserted" })
     } catch (error) {
         console.log(error);
-        res.status(400).send('there was a mistake');
+        res.status(400).send('There was an error');
     }
 
     const { category } = req.body;
@@ -92,7 +92,7 @@ exports.updateCategoryId = async(req, res) => {
     Category.findByIdAndUpdate(categoryId, update, (err, category) => {
         if (err) {
 
-            return res.status(500).send({ message: `Erro on update category ${err}` })
+            return res.status(500).send({ message: `Error updating Category ${err}` })
         }
 
         res.send(200, { category })
@@ -102,11 +102,11 @@ exports.updateCategoryId = async(req, res) => {
 exports.deleteCategoryId = async(req, res) => {
     let categoryId = req.params.productId
     Category.findById(categoryId, (err, category) => {
-        if (err) res.status(500).send({ message: `Error on delete Category${err}` })
+        if (err) res.status(500).send({ message: `Error deleting Category${err}` })
 
         category.remove(err => {
-            if (err) res.status(500).send({ message: 'Erro this delete category' })
-            res.status(200).send({ message: 'This product has delete' })
+            if (err) res.status(500).send({ message: 'Error deleting Category' })
+            res.status(200).send({ message: 'The Category has been deleted' })
         })
     })
 }
