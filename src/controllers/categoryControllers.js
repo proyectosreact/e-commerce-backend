@@ -1,13 +1,12 @@
-<<<<<<< HEAD
 const Category = require('../models/category');
 
 const { validationResult } = require('express-validator');
 const { json } = require('express');
-=======
-const Category=require('../models/category');
-const {validationResult}=require('express-validator');
 
->>>>>>> c33a9d7a0fd1898be7ae68ca8af08ad14592b5ac
+const Category = require('../models/category');
+const { validationResult } = require('express-validator');
+
+
 
 exports.createCategory = async(req, res) => {
 
@@ -16,7 +15,6 @@ exports.createCategory = async(req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
     }
-<<<<<<< HEAD
 
     const { category } = req.body.category;
 
@@ -35,37 +33,36 @@ exports.createCategory = async(req, res) => {
         console.log(error);
         res.status(400).send('there was a mistake');
     }
-=======
- 
-    const {category} = req.body;
+
+    const { category } = req.body;
     console.log({ category });
-    
+
     try {
         let categoryName = await Category.findOne({ category });
 
-        if(categoryName){
-            return res.status(400).json({msg: 'Category already exists'});
+        if (categoryName) {
+            return res.status(400).json({ msg: 'Category already exists' });
         }
 
         categoryName = new Category(req.body);
         await categoryName.save()
 
-        res.json({status: true, msg: 'The category was inserted correctly'});
+        res.json({ status: true, msg: 'The category was inserted correctly' });
     } catch (error) {
         console.log(error);
-        res.status(400).json({msg: 'There was a mistake'});
-    }   
->>>>>>> c33a9d7a0fd1898be7ae68ca8af08ad14592b5ac
+        res.status(400).json({ msg: 'There was a mistake' });
+    }
+
 }
 
 exports.queryCategory = async(req, res) => {
     Category.find({}, (err, categorys) => {
         if (err) {
 
-            return res.status(500).send({ message: `Erro this pettition ${err}` })
+            return res.status(500).send({ message: `Error in the request ${err}` })
         }
         if (!categorys) {
-            return res.status(404).send({ message: `The categorys not exist ` })
+            return res.status(404).send({ message: `The category does not exist ` })
 
         }
         res.status(200).send({ categorys })
@@ -79,10 +76,10 @@ exports.queryCategoryId = async(req, res) => {
     Category.findById(categoryId, (err, category) => {
         if (err) {
 
-            return res.status(500).send({ message: `Erro this petition ${err}` })
+            return res.status(500).send({ message: `Error in the request ${err}` })
         }
         if (!category) {
-            return res.status(404).send({ message: `The category not exist ` })
+            return res.status(404).send({ message: `The category does not exist ` })
 
         }
         res.send(200, { category })
