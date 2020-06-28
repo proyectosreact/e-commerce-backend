@@ -5,7 +5,7 @@ const userController = require( '../controllers/userController' );
 const { check } = require('express-validator');
 
 
-//Make a user
+//Make a user and send email to verify
 //api/user
 router.post( '/', [
     check( 'name', 'The name is required').not().isEmpty(),
@@ -14,17 +14,15 @@ router.post( '/', [
 ],
  userController.createUser )
 
- //Send email to verifid
-router.get('/sendMail', userController.sendEmail);
-
+router.put('/forgotPassword', userController.forgetPassword);
+router.put('/resetPassword', userController.resetPassword)
 //Verify Email with link
 router.get('/verify', userController.verifyEmail);
 
 //Get Name from user
-router.get('/home', userController.showUserName);
+router.get('/showUser', userController.showUserName);
 
 //Get List Users
  router.get('/list', userController.listUsers);
-
 
 module.exports = router;
