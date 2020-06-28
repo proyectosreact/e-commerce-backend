@@ -21,12 +21,14 @@ exports.createSubCategory = async(req, res) => {
         //Utilizacion de req.query.#### pues determina hacer  una consulta con un body  en el post o en el put
             IdCategory = req.query.IdCategory;
 
+
         let existsubcategory = await Category.findById(IdCategory, (err, category) => {
             if (err) {
                 return res.status(500).json({
                     message: 'err this server'
                 });
             }
+
 
         })
 
@@ -104,3 +106,4 @@ exports.querySubCategoryByIdCategory = async(req, res) => {
         }
     })
 }
+

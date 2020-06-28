@@ -97,7 +97,6 @@ exports.updateCategoryId = async(req, res) => {
             })
         }
 
-
         res.status(200).json({
             category
         })

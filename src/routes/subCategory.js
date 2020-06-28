@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const subCategoryController = require('../controllers/subCategoryControllers');
+
 const {
   check
 } = require('express-validator');
@@ -18,3 +19,4 @@ router.put('/:IdCategory:subCategory', categoryController.updateCategoryId)
 router.delete('/:IdCategory:subcategory', categoryController.deleteCategoryId)*/
 
 module.exports = router;
+

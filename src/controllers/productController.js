@@ -1,8 +1,7 @@
-const Category = require('../models/category');
-<<<<<<< HEAD
-const {
-  validationResult
-} = require('express-validator');
+
+const Category=require('../models/category');
+const {validationResult}=require('express-validator'); //Faltan hacer validaciones
+
 
 exports.createProduct = async (req, res) => {
 
@@ -80,6 +79,7 @@ exports.createProduct = async(req, res) => {
         return res.status(400).json({ errors: errors.array() })
     }
 
+
     let descriptionProduct = req.body.descriptionProduct
 
     console.log(descriptionCategory)
@@ -103,6 +103,7 @@ exports.createProduct = async(req, res) => {
             if (err) res.status(500).send({ message: `this error of save ${err}` })
 
             res.status(200).send({ product: productStored })
+
         })
 
     } catch (error) {
@@ -111,43 +112,25 @@ exports.createProduct = async(req, res) => {
     }
 }
 
+
 exports.queryProduct = async(req, res) => {
     Category.find({}, (err, products) => {
+
         if (err) {
 
             return res.status(500).send({ message: `Erro this pettition ${err}` })
         }
         if (!products) {
+
             return res.status(404).send({ message: `The categorys not exist ` })
 
         }
         res.send(200, { products })
->>>>>>> feature-uyamil
     })
   })
 }
 
-<<<<<<< HEAD
-exports.queryProductId = async (req, res) => {
-  let productId = req.params.IdProduct
-  Category.findById(productId, (err, products) => {
-    if (err) {
 
-      return res.status(500).send({
-        message: `Erro this petition ${err}`
-      })
-    }
-    if (!products) {
-      return res.status(404).send({
-        message: `The category not exist `
-      })
-
-    }
-    res.send(200, {
-      products
-    })
-  })
-=======
 exports.queryProductId = async(req, res) => {
     let productId = req.params.IdProduct
     Category.findById(productId, (err, products) => {
@@ -161,5 +144,13 @@ exports.queryProductId = async(req, res) => {
         }
         res.send(200, { products })
     })
->>>>>>> feature-uyamil
+      return res.status(404).send({message: `The product not exist `})
+        
+    }
+    res.send(200, {products})
+})
+}
+
+exports.updateCategoryId = (req, res) => {        
+        res.send('UpdateProduct');
 }
