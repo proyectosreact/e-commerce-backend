@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 const CategorySchema = new Schema({
@@ -46,35 +45,3 @@ const CategorySchema = new Schema({
     timestamps: true
 })
 module.exports = mongoose.model('Category', CategorySchema)
-=======
-const {Schema, model}= require('mongoose'),
-
-CategorySchema = new Schema({
-    category:{        
-        type: String,
-        unique: true,
-        required: 'Category is required',
-        subCategory:[{
-            name:{
-            type:String,
-            product:[{
-                name:{
-                    type:String,
-                },
-                sku:{
-                    unique: true,
-                    type:String,   
-                },
-                size:{
-                    type:String,    
-                },
-                url:{
-                    type:String,
-                }
-            }]}        
-        }],
-    }},{
-    timestamps:true}
-)
-module.exports = model('Category',CategorySchema);
->>>>>>> c33a9d7a0fd1898be7ae68ca8af08ad14592b5ac

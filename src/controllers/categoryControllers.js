@@ -102,21 +102,53 @@ exports.queryCategoryId = async(req, res) => {
 // Yamil
 // Pasar esto a ASYNC, AWAIT
 exports.updateCategoryId = async(req, res) => {
-    let categoryId = req.query.IdCategory
-    let update = req.body
+    // Verify that we do not have errors.
+    const errors = validationResult(req);
 
-    Category.findByIdAndUpdate(categoryId, update, (err, category) => {
-        if (err) {
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
 
-            return res.status(500).json({
-                message: `Erro on update category ${err}`
-            })
+    try {
+        // If the record exist
+        let { id } = req.query;
+
+        let category = await Category.findOne({ category: id }, { category: true, _id: false });
+
+        if (category) {
+            return res.json({
+                msg: 'ok',
+                category
+            });
         }
 
-        res.status(200).json({
-            category
-        })
-    })
+        let categoryUpdate = await Category.findByIdAndUpdate(category);
+        if (categoryUpdate) {
+            return res.status(200).json({
+                msg: `Category ${categoryUpdate.category} updated`
+            });
+        }
+    } catch (err) {
+        return res.status(400).json({
+            msg: `An error ocurred trying to update the Category`
+        });
+    }
+
+    // let categoryId = req.query.IdCategory
+    // let update = req.body
+
+    // Category.findByIdAndUpdate(categoryId, update, (err, category) => {
+    //     if (err) {
+
+    //         return res.status(500).json({
+    //             message: `Erro on update category ${err}`
+    //         })
+    //     }
+
+    //     res.status(200).json({
+    //         category
+    //     })
+    // })
 }
 
 // Enzo

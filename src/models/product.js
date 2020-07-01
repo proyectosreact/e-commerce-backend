@@ -1,7 +1,7 @@
 // Modelo para el producto.
 
 const category = require('./category');
-
+mongoose.set('useCreateIndex', true); // uyamil - quitar Warning
 const { Schema, model } = require('mongoose'),
 
     ProductSchema = new Schema({
