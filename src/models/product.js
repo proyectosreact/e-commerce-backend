@@ -26,11 +26,11 @@ const { Schema, model } = require('mongoose'),
             required: true,
             default: true
         },
-        category: {
-            type: Schema.Types.ObjectId,
-            ref: 'category',
-            required: true
-        },
+        // category: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: 'category',
+        //     required: true
+        // },
         usuario: {
             type: Schema.Types.ObjectId,
             ref: 'user'

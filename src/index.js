@@ -28,6 +28,7 @@ app.use('/api/users', require('./routes/user'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/category', require('./routes/category'));
 app.use('/api/subCategory', require('./routes/subCategory'));
+app.use('/api/product', require('./routes/product'));
 
 //start app
 app.listen(PORT, () => {
