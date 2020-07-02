@@ -115,13 +115,6 @@ exports.updateCategoryId = async(req, res) => {
 
         let category = await Category.findOne({ category: id }, { category: true, _id: false });
 
-        if (category) {
-            return res.json({
-                msg: 'ok',
-                category
-            });
-        }
-
         let categoryUpdate = await Category.findByIdAndUpdate(category);
         if (categoryUpdate) {
             return res.status(200).json({
@@ -133,22 +126,6 @@ exports.updateCategoryId = async(req, res) => {
             msg: `An error ocurred trying to update the Category`
         });
     }
-
-    // let categoryId = req.query.IdCategory
-    // let update = req.body
-
-    // Category.findByIdAndUpdate(categoryId, update, (err, category) => {
-    //     if (err) {
-
-    //         return res.status(500).json({
-    //             message: `Erro on update category ${err}`
-    //         })
-    //     }
-
-    //     res.status(200).json({
-    //         category
-    //     })
-    // })
 }
 
 // Enzo

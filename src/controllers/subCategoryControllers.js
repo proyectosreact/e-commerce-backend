@@ -8,86 +8,57 @@ const {
 } = require("lodash");
 
 exports.createSubCategory = async(req, res) => {
-        const errors = validationResult(req);
+    const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array(),
+        });
+    }
+
+    const subCategory = req.body;
+    const
+    //Utilizacion de req.query.#### pues determina hacer  una consulta con un body  en el post o en el put
+        IdCategory = req.query.IdCategory;
+
+    let existsubcategory = await Category.findById(IdCategory, (err, category) => {
+        if (err) {
+            return res.status(500).json({
+                message: 'err this server'
             });
         }
 
-        const subCategory = req.body;
-        const
-        //Utilizacion de req.query.#### pues determina hacer  una consulta con un body  en el post o en el put
-            IdCategory = req.query.IdCategory;
 
+    })
 
-        let existsubcategory = await Category.findById(IdCategory, (err, category) => {
+    console.log(sub);
+    if (existsubcategory) {
+        return res.status(400).json({
+            message: 'This subcategory exist'
+        })
+    }
+    Category.findByIdAndUpdate(
+        IdCategory, {
+            $push: {
+                subCategory: subCategory,
+            },
+        }, {
+            strict: false,
+        },
+        (err, managerparent) => {
             if (err) {
                 return res.status(500).json({
-                    message: 'err this server'
+                    message: "this error",
                 });
             }
-
-
-        })
-
-        console.log(sub);
-        if (existsubcategory) {
-            return res.status(400).json({
-                message: 'This subcategory exist'
-            })
+            console.log("este es el final")
+            return res.status(200).json({
+                subCategory,
+            });
         }
-        Category.findByIdAndUpdate(
-            IdCategory, {
-                $push: {
-                    subCategory: subCategory,
-                },
-            }, {
-                strict: false,
-            },
-            (err, managerparent) => {
-                if (err) {
-                    return res.status(500).json({
-                        message: "this error",
-                    });
-                }
-                console.log("este es el final")
-                return res.status(200).json({
-                    subCategory,
-                });
-            }
-        );
-    }
-    /*
-    exports.querySubCategoryByIdCategory = async (req, res) => {
-      const errors = validationResult(req)
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          errors: errors.array()
-        })
-      }
-      const IdCategory = req.params.IdCategory;
-      Category.findById(IdCategory, (err, category) => {
-        if (err) {
-          return res.status(500).json({
-            message: `Error this petition ${err}`
-          })
-        }
-        if (!category) {
-          return res.status(404).json({
-            mesage: 'This cateogry not Exist'
-          })
-        }
-        let {
-          subcateogys
-        } = category.subCategory
-        console.log(subcateogys)
-        res.status(200).json({
-          subcategory: category.subCategory
-        })
-      })
-    }*/
+    );
+}
+
 exports.querySubCategoryByIdCategory = async(req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -106,4 +77,3 @@ exports.querySubCategoryByIdCategory = async(req, res) => {
         }
     })
 }
-
