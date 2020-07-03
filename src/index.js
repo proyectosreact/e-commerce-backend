@@ -11,25 +11,26 @@ const app = express();
 connectedDB();
 
 //Express.json
-app.use(express.json({ extended: true }));
-app.use(express.urlencoded({extended:false}));
+app.use(express.json({
+  extended: true
+}));
+app.use(express.urlencoded({
+  extended: false
+}));
 app.use(cors());
 
 //PORT app
 const PORT = process.env.PORT || 4000;
 
 //Import route user
-app.use('/api/users' , require( './routes/user' ));
-app.use('/api/auth' , require( './routes/auth' ));
-app.use('/api/category',require('./routes/category'));
 
-app.use('/api/users/sendMail' , require( './routes/user' ));
-app.use('/api/users/verify', require('./routes/user'));
-//app.use('/api/users/home', require('./routes/user'));
-app.use('/api/users/list', require('./routes/user'));
-
+app.use('/api/users', require('./routes/user'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/category', require('./routes/category'));
+app.use('/api/subCategory', require('./routes/subCategory'));
+app.use('/api/product', require('./routes/product'));
 
 //start app
-app.listen( PORT, () =>{
-    console.log(`Server on port ${PORT}`);
-}); 
+app.listen(PORT, () => {
+  console.log(`Server on port ${PORT}`);
+});

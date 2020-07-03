@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
+const { check } = require('express-validator');
 
-// Definir las rutas.
+// Usar las validaciones para la SubCategory y Product
 
-router.post('/', productController.createProduct);
+router.post('/',[check('name', 'The name is required')], productController.createProduct);
+router.get('/list',productController.listProducts)
 
-router.get('/', productController.queryProduct);
-router.get('/:IdProduct', productController.queryProductId);
+//router.put('/:IdCategory',productController.updateProductId)
+//router.delete('/:IdCategory',productController.deleteProductId)
 
-router.put('/:IdProduct', productController.updateProductId);
-router.delete('/:IdProduct', productController.deleteCategoryId);
-
-module.exporst = router;
+module.exports=router;
