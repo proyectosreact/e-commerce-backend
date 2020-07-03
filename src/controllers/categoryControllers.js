@@ -26,7 +26,7 @@ exports.createCategory = async(req, res) => {
             });
         }
 
-        categoryName = new Category(req.body);
+        categoryName = new Category({category});
         await categoryName.save()
 
         res.json({
@@ -51,7 +51,7 @@ exports.queryCategory = async(req, res) => {
     }
     try {
         // Request to get all Categories in the database and list the category and subCategory name.
-        let category = await Category.find({}, { _id: false, category: true, subCategory: true });
+        let category = await Category.find({}, { _id: false, category: true, subCategorys: true });
 
         return res.json({
             status: true,
@@ -108,8 +108,7 @@ exports.deleteCategoryId = async(req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
     }
-
-    const { id } = req.params    
+  
     try{
         let categoryDelete = await Category.findByIdAndDelete(req.params.id)
         if(categoryDelete){
