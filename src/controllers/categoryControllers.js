@@ -40,7 +40,6 @@ exports.createCategory = async(req, res) => {
         });
     }
 }
-
 exports.queryCategory = async(req, res) => {
     
     // Verify that we do not have errors.
@@ -52,11 +51,11 @@ exports.queryCategory = async(req, res) => {
     try {
         // Request to get all Categories in the database and list the category and subCategory name.
         let category = await Category.find({}, { _id: false, category: true, subCategorys: true });
-
+        let countDoc = await Category.countDocuments();
         return res.json({
             status: true,
             category,
-            
+            countDoc            
         });
     } catch (error) {
         return res.status(400).json({
@@ -95,7 +94,7 @@ exports.updateCategoryId = async(req, res) => {
 
     const {category} = req.body
     try{
-    let categoryUpdate = await Category.findByIdAndUpdate(req.params.id, {category}, {new:true})
+    let categoryUpdate = await Category.findByIdAndUpdate(req.params.id, { category }, {new : true})
     if(categoryUpdate){
         return res.status(200).json({msg: `Category ${category} is updated`})
     }}catch(err){
