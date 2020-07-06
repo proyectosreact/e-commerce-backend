@@ -14,15 +14,11 @@ exports.createCategory = async(req, res) => {
         })
     }
 
-    const {
-        category
-    } = req.body;
+    const { category } = req.body;
 
 
     try {
-        let categoryName = await Category.findOne({
-            category
-        });
+        let categoryName = await Category.findOne({category});
 
         if (categoryName) {
             return res.status(400).json({
@@ -30,7 +26,7 @@ exports.createCategory = async(req, res) => {
             });
         }
 
-        categoryName = new Category(req.body);
+        categoryName = new Category({category});
         await categoryName.save()
 
         res.json({
@@ -44,79 +40,80 @@ exports.createCategory = async(req, res) => {
         });
     }
 }
-
 exports.queryCategory = async(req, res) => {
-    Category.find({}, (err, categorys) => {
-        if (err) {
+    
+    // Verify that we do not have errors.
+    const errors = validationResult(req);
 
-            return res.status(500).json({
-                message: `Erro this petition ${err}`
-            })
-        }
-        if (!categorys) {
-            return res.status(404).json({
-                message: `The categorys not exist `
-            })
-
-        }
-        res.status(200).json({
-            categorys
-        })
-    })
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+    try {
+        // Request to get all Categories in the database and list the category and subCategory name.
+        let category = await Category.find({}, { _id: false, category: true, subCategorys: true });
+        let countDoc = await Category.countDocuments();
+        return res.json({
+            status: true,
+            category,
+            countDoc            
+        });
+    } catch (error) {
+        return res.status(400).json({
+            msg: `There was an error processing the request: ${error}`
+        });
+    }
 }
 exports.queryCategoryId = async(req, res) => {
-    let categoryId = req.query.IdCategory
-    console.log(categoryId)
-    Category.findById(categoryId, (err, category) => {
-        if (err) {
+   
+   // Verify that we do not have errors.
+   const errors = validationResult(req);
 
-            return res.status(500).json({
-                message: `Erro this petition ${err}`
-            })
-        }
-        if (!category) {
-            return res.status(404).json({
-                message: `The category not exist `
-            })
+   if (!errors.isEmpty()) {
+       return res.status(400).json({ errors: errors.array() })
+   }
+   try {
+       // Parameter that we receive in the request.
+       let { id } = req.query;
+       let category = await Category.findOne({ category: id }, { category: true, _id: false });
+       if (category) {
+           return res.json({code: status.OK, msg: `${showNameUser.name}`})
+       }
+       return res.status(400).json({ msg: `Category does not exist`});
 
-        }
-        res.status(200).json({
-            category
-        })
-    })
+
+   } catch (error) {
+       return res.json({ code: status.ERROR, message: 'Internal server Error' });
+   }
 }
 exports.updateCategoryId = async(req, res) => {
-    let categoryId = req.query.IdCategory
-    let update = req.body
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
 
-    Category.findByIdAndUpdate(categoryId, update, (err, category) => {
-        if (err) {
-
-            return res.status(500).json({
-                message: `Erro on update category ${err}`
-            })
-        }
-
-
-        res.status(200).json({
-            category
-        })
-    })
+    const {category} = req.body
+    try{
+    let categoryUpdate = await Category.findByIdAndUpdate(req.params.id, { category }, {new : true})
+    if(categoryUpdate){
+        return res.status(200).json({msg: `Category ${category} is updated`})
+    }}catch(err){
+        return res.status(400).json({msg: 'The requested operation could not be performed'})
+    }   
 }
 exports.deleteCategoryId = async(req, res) => {
-    let categoryId = req.query.IdCategory
-    Category.findById(categoryId, (err, category) => {
-        if (err) res.status(500).json({
-            message: `Error on delete Category${err}`
-        })
-
-        category.remove(err => {
-            if (err) res.status(500).send({
-                message: 'Erro this delete category'
-            })
-            res.status(200).json({
-                message: 'This product has delete'
-            })
-        })
-    })
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+  
+    try{
+        let categoryDelete = await Category.findByIdAndDelete(req.params.id)
+        if(categoryDelete){
+            return res.status(200).json({msg: `Category ${categoryDelete.category} is deleted`})
+        }
+    }catch(err){
+        return res.status(400).json({msg: 'The requested operation could not be performed'})
+    }
 }

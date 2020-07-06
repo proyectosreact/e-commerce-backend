@@ -237,8 +237,8 @@ exports.verifyEmail = async (req, res) =>{
     }
     //res.redirection('/');
 };
-
-exports.showUserName = async (req, res, next) => {
+//Show only a name from user
+exports.showUserName = async (req, res) => {
 
     //check for mistakes
     const errors = validationResult(req);
@@ -246,11 +246,14 @@ exports.showUserName = async (req, res, next) => {
         res.status(400).json({ errors: errors.array() })
     };
 
-    const {email, nombre} = req.body
+    const {name} = req.query
+
     try {
-        let showNameUser = await User.findOne({name})
-        console.log(showNameUser);
-        return res.json({code: status.OK, showNameUser})
+        let showNameUser = await User.findOne({name},{_id: false, name:true})
+        if(!showNameUser){
+            return res.json({code: status.ERROR, msg: `The user ${req.body.name} does not exists`})
+        }
+        return res.json({code: status.OK, msg: `${showNameUser.name}`})
     } catch (error) {
         return res.json({ code: status.ERROR, message: 'Internal server Error' });
     }

@@ -23,17 +23,12 @@ app.use(cors());
 const PORT = process.env.PORT || 4000;
 
 //Import route user
+
 app.use('/api/users', require('./routes/user'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/category', require('./routes/category'));
 app.use('/api/subCategory', require('./routes/subCategory'));
-
-app.use('/api/users/forgotPassword', require('./routes/user'));
-app.use('/api/users/resetPassword', require('./routes/user'));
-app.use('/api/users/verify', require('./routes/user'));
-//app.use('/api/users/home', require('./routes/user'));
-app.use('/api/users/list', require('./routes/user'));
-
+app.use('/api/product', require('./routes/product'));
 
 //start app
 app.listen(PORT, () => {

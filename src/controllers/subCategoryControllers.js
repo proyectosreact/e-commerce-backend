@@ -1,106 +1,174 @@
 const Category = require("../models/category");
-const {
-    validationResult
-} = require("express-validator");
-const category = require("../models/category");
-const {
-    identity
-} = require("lodash");
+const { validationResult } = require("express-validator");
+const { Mongoose, isValidObjectId } = require("mongoose");
+const { update } = require("../models/category");
+
 
 exports.createSubCategory = async(req, res) => {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-            });
-        }
-
-        const subCategory = req.body;
-        const
-        //Utilizacion de req.query.#### pues determina hacer  una consulta con un body  en el post o en el put
-            IdCategory = req.query.IdCategory;
-
-        let existsubcategory = await Category.findById(IdCategory, (err, category) => {
-            if (err) {
-                return res.status(500).json({
-                    message: 'err this server'
-                });
-            }
-
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array()} );
+    }
+    
+    variablenw = false;
+    const {subCategory} = req.body; 
+    try{
+        let nwsub = await Category.findById({_id : req.params.id})
+        nwsub.subCategorys.forEach(subCategory => {
+            if (subCategory.subCategory === req.body.subCategory) { variablenw = true }
         })
+        //console.log(variablenw)
+        if (variablenw === false) {
+            let nw = await Category.findByIdAndUpdate(
+                
+                {_id : req.params.id},
+                {$push:{'subCategorys':{subCategory}}}
 
-        console.log(sub);
-        if (existsubcategory) {
-            return res.status(400).json({
-                message: 'This subcategory exist'
+            )
+            res.status(200).json({
+                msg: `The subcategory ${req.body.subCategory} was inserted succesfully `
             })
         }
-        Category.findByIdAndUpdate(
-            IdCategory, {
-                $push: {
-                    subCategory: subCategory,
-                },
-            }, {
-                strict: false,
-            },
-            (err, managerparent) => {
-                if (err) {
-                    return res.status(500).json({
-                        message: "this error",
-                    });
-                }
-                console.log("este es el final")
-                return res.status(200).json({
-                    subCategory,
-                });
-            }
-        );
+    }catch(err){
+            res.status(400).json({msg: `The subcategory ${subCategory} could not be inserted correctly` })
     }
-    /*
-    exports.querySubCategoryByIdCategory = async (req, res) => {
-      const errors = validationResult(req)
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          errors: errors.array()
-        })
-      }
-      const IdCategory = req.params.IdCategory;
-      Category.findById(IdCategory, (err, category) => {
-        if (err) {
-          return res.status(500).json({
-            message: `Error this petition ${err}`
-          })
-        }
-        if (!category) {
-          return res.status(404).json({
-            mesage: 'This cateogry not Exist'
-          })
-        }
-        let {
-          subcateogys
-        } = category.subCategory
-        console.log(subcateogys)
-        res.status(200).json({
-          subcategory: category.subCategory
-        })
-      })
-    }*/
-exports.querySubCategoryByIdCategory = async(req, res) => {
+}
+    
+exports.showSc = async(req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
         return res.status(400).json({
             errors: errors.array()
         })
+    }    
+
+    let showSc = await Category.find( {}, {_id:false, subCategorys: true})
+    let docTotal = await Category.countDocuments()
+    res.status(200).json({status : true, showSc, docTotal})
+
+
+}
+
+exports.showScId = async (req, res) =>{
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
     }
-    const IdCategory = req.params.IdCategory;
-    Category.findOne({
-        _id: IdCategory
-    }).select('subCategory').populate('name').exec(function(err, category) {
-        if (err) {
-            res.status(5000).json({
-                message: 'error'
-            })
+
+    const {subCategory, id} = req.body
+
+    try{
+        if (id != null ) {
+            let showSub = await Category.find({
+                subCategorys : { $elemMatch : { _id : id }}
+            },
+            {
+               _id : false, subCategorys : {
+                $elemMatch : { _id : id }}
+            });
+            
+            if( showSub ){                
+                
+                return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub });
+            }
+                
+
         }
-    })
+        
+        let showSub = await Category.find({
+            subCategorys : { $elemMatch : { subCategory : subCategory }}
+        },
+        {
+             _id : false, subCategorys : {
+                 $elemMatch : { subCategory : subCategory }}
+        });
+
+        console.log({'showSc.subCategorys' : subCategory})
+        
+
+        if (showSc) {
+
+            return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub});
+                      
+        }
+            //return res.status(400).json({ msg: `The ${subCategory} Subcategory does not exist, please check and ask again `});
+        
+        
+    }catch(err){
+        return res.status(400).json({ msg: `The Subcategory does not exist, please check and ask again ${err}`})
+    }
+}
+exports.updateSc = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+
+    const { id } = req.params
+    const { subCategory } = req.body
+
+    try{
+        if (id != null ) {
+            let updateSub = await Category.updateOne({
+                subCategorys : { $elemMatch : { _id : req.params.id }}
+            },
+            {
+                $addToSet:{"subCategorys.$.subCategory": subCategory}
+            })            
+            let showNewSc = await Category.findOne({
+                subCategorys : { $elemMatch : { _id : req.params.id }}
+            },
+            {
+                subCategorys : { $elemMatch : { _id : req.params.id }}
+            })
+            res.status(200).json({ msg: `The update was successful`, showNewSc})
+        }    
+        
+    }catch(err){
+        return res.status(400).json({ msg: `The Subcategory does not exist, please check and ask again ${err}`})
+    }
+
+
+}
+exports.deleteSc = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
+    
+    const { id } = req.params
+    const { subCategory } = req.body
+    variablenw = false
+
+    try{
+        if (id != null ) {
+            let updateSub = await Category.findOne({
+
+                'subCategorys._id': id
+
+            },{_id: false,category: false, 'subCategorys.products': false, 'subCategorys._id': false} ) 
+            
+            console.log(updateSub.subCategorys)
+
+            updateSub.subCategorys.forEach(subCategory =>{
+
+                console.log(subCategory.subCategory)
+                if (updateSub.subCategorys === subCategory.subCategory) { variablenw = true }                
+                console.log(variablenw)
+            })
+
+            
+
+            //let deleteSc = await Category.
+            
+            res.status(200).json({ msg: `The update was successful`, updateSub})
+        }    
+        
+    }catch(err){
+        return res.status(400).json({ msg: `The Subcategory does not exist, please check and ask again ${err}`})
+    }
 }
