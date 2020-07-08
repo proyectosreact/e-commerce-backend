@@ -16,8 +16,7 @@ CategorySchema = new Schema({
                 type: String,
             },
             sku:{
-                type: String,
-                unique: true
+                type: String
             },
             uri:{
                 type: String
