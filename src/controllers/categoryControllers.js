@@ -1,7 +1,5 @@
 const Category = require('../models/category');
-const {
-    validationResult
-} = require('express-validator');
+const { validationResult } = require('express-validator');
 
 
 exports.createCategory = async(req, res) => {
@@ -15,10 +13,10 @@ exports.createCategory = async(req, res) => {
     }
 
     const { category } = req.body;
-
+    //console.log(category)
 
     try {
-        let categoryName = await Category.findOne({category});
+        let categoryName = await Category.findOne({ category });
 
         if (categoryName) {
             return res.status(400).json({
@@ -26,7 +24,7 @@ exports.createCategory = async(req, res) => {
             });
         }
 
-        categoryName = new Category({category});
+        categoryName = new Category({ category });
         await categoryName.save()
 
         res.json({
