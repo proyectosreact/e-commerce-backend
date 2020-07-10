@@ -23,6 +23,7 @@ exports.createUser = async ( req, res ) => {
     const {email, password} = req.body;
 
     try {
+        if(password.length > 8){
         let user = await User.findOne({ email });
 
         //check
@@ -58,8 +59,6 @@ exports.createUser = async ( req, res ) => {
 
             //Confirmation Msg
             res.json({ token });
-
-
         });
         const smtpTransport = nodemailer.createTransport({
             service: 'gmail',
@@ -87,7 +86,7 @@ exports.createUser = async ( req, res ) => {
                 res.send("Please check your mail, we sent mail to verify account");
             }
         });
-       
+    }
         
     } catch (error) {
         console.log(error);

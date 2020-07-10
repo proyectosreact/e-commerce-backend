@@ -1,7 +1,5 @@
 const Category = require("../models/category");
 const { validationResult } = require("express-validator");
-const { Mongoose, isValidObjectId } = require("mongoose");
-const { update } = require("../models/category");
 
 
 exports.createSubCategory = async(req, res) => {
@@ -14,9 +12,20 @@ exports.createSubCategory = async(req, res) => {
     variablenw = false;
     const {subCategory} = req.body; 
     try{
-        let nwsub = await Category.findById({_id : req.params.id})
+        let showSub = await Category.find({
+            subCategorys : { $elemMatch : { subCategory : subCategory }}
+        },
+        {
+             _id : false, subCategorys : {
+                 $elemMatch : { subCategory : subCategory }}
+        });
+        if(showSub != null){
+
+            let nwsub = await Category.findById({_id : req.params.id})
         nwsub.subCategorys.forEach(subCategory => {
-            if (subCategory.subCategory === req.body.subCategory) { variablenw = true }
+            if (subCategory.subCategory === req.body.subCategory) {
+                variablenw = true 
+            }
         })
         //console.log(variablenw)
         if (variablenw === false) {
@@ -30,6 +39,9 @@ exports.createSubCategory = async(req, res) => {
                 msg: `The subcategory ${req.body.subCategory} was inserted succesfully `
             })
         }
+        }else{
+        res.json({msg:`The subcategory ${subCategory} is exists`})
+    }
     }catch(err){
             res.status(400).json({msg: `The subcategory ${subCategory} could not be inserted correctly` })
     }
@@ -43,7 +55,7 @@ exports.showSc = async(req, res) => {
         })
     }    
 
-    let showSc = await Category.find( {}, {_id:false, subCategorys: true})
+    let showSc = await Category.find( {}, {_id:false, subCategorys:true})
     let docTotal = await Category.countDocuments()
     res.status(200).json({status : true, showSc, docTotal})
 
@@ -57,7 +69,8 @@ exports.showScId = async (req, res) =>{
         return res.status(400).json({ errors: errors.array() })
     }
 
-    const {subCategory, id} = req.body
+    const { subCategory } = req.body
+    const {id} = req.params
 
     try{
         if (id != null ) {
@@ -65,8 +78,7 @@ exports.showScId = async (req, res) =>{
                 subCategorys : { $elemMatch : { _id : id }}
             },
             {
-               _id : false, subCategorys : {
-                $elemMatch : { _id : id }}
+               _id : false, 'subCategorys.subCategory': subCategory, 
             });
             
             if( showSub ){                
@@ -112,19 +124,20 @@ exports.updateSc = async (req, res) => {
 
     try{
         if (id != null ) {
-            let updateSub = await Category.updateOne({
-                subCategorys : { $elemMatch : { _id : req.params.id }}
+
+            let updateSc = await Category.findOneAndUpdate({
+                subCategorys:{$elemMatch: {_id: id}}
             },
-            {
-                $addToSet:{"subCategorys.$.subCategory": subCategory}
-            })            
+            {'subCategorys.$.subCategory': subCategory},{'subCategory.subCategory': true})
+            
+            console.log(updateSc)           
             let showNewSc = await Category.findOne({
                 subCategorys : { $elemMatch : { _id : req.params.id }}
             },
             {
                 subCategorys : { $elemMatch : { _id : req.params.id }}
             })
-            res.status(200).json({ msg: `The update was successful`, showNewSc})
+            res.status(200).json({ msg: `The update was successfull`, showNewSc})
         }    
         
     }catch(err){
@@ -142,30 +155,15 @@ exports.deleteSc = async (req, res) => {
     
     const { id } = req.params
     const { subCategory } = req.body
-    variablenw = false
 
     try{
         if (id != null ) {
-            let updateSub = await Category.findOne({
-
-                'subCategorys._id': id
-
-            },{_id: false,category: false, 'subCategorys.products': false, 'subCategorys._id': false} ) 
             
-            console.log(updateSub.subCategorys)
-
-            updateSub.subCategorys.forEach(subCategory =>{
-
-                console.log(subCategory.subCategory)
-                if (updateSub.subCategorys === subCategory.subCategory) { variablenw = true }                
-                console.log(variablenw)
-            })
-
+            let deleteSc = await Category.findOne({'subCategorys._id' : id})
             
-
-            //let deleteSc = await Category.
+            console.log(deleteSc)
             
-            res.status(200).json({ msg: `The update was successful`, updateSub})
+            res.status(200).json({ msg: `The delete was successful`, deleteSc})
         }    
         
     }catch(err){
