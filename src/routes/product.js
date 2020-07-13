@@ -14,6 +14,7 @@ router.post('/',[
 ],
 productController.createProduct);
 
+
 //router.get('/list',productController.listProducts);
 router.get('/list',productController.listProductsByCategoriesAndSubsCategories);
 router.delete('/:id',productController.deleteProduct);

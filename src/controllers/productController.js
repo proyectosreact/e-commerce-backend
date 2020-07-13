@@ -1,13 +1,16 @@
-const Product = require('../models/product');
 const { validationResult } = require('express-validator');
 const status = require('../config/config');
 const Category = require('../models/category');
 
 exports.createProduct = async ( req, res ) => {
+  
   const errors = validationResult(req);
-  if ( !errors.isEmpty() ) {
-    return res.status(400).json({ code: status.ERROR, message: errors.array() });
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array()} );
   }
+  
+  const { product } = req.body
+  const { id } = req.params
 
   try {
 
@@ -32,6 +35,7 @@ exports.createProduct = async ( req, res ) => {
     console.log(error);
     return res.status(400).json({ code: status.ERROR, msg: 'There was a mistake' });
   }
+
 
 }
 
@@ -95,6 +99,7 @@ exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
     return res.status(400).json({ code: status.ERROR, message: errors.array() });
   }
 
+
   //console.log(req.query);
   const {idCategories,idSubCategory} = req.query;
 
@@ -127,3 +132,4 @@ exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
   }
 
 };
+
