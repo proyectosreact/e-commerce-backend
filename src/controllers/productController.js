@@ -41,6 +41,42 @@ exports.createProduct = async ( req, res ) => {
 
 exports.findProduct = async ( req, res ) => {
   
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()});
+  }
+
+  try{
+
+    const {id} = req.params;
+
+    const product = await Category.findOne({'subCategorys.products._id':id},{'subCategorys.$':1});
+
+    if(product){
+      
+      product.subCategorys[0].products.forEach(product=>{
+  
+        if(product._id == id){
+  
+          return res.status(200).json({"data":{product},code:status.OK});
+  
+        }
+        
+      });
+
+    }else{
+
+      res.status(400).json({"data":{product},code:status.ERROR});
+
+    }
+
+  }catch(error){
+    
+    res.status(500).json({"data":{msg:"Server Error",code:status.ERROR_SERVER}});
+
+  }
+
 }
 
 exports.updateProduct = async ( req, res ) => {

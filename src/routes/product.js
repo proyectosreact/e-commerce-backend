@@ -17,6 +17,7 @@ productController.createProduct);
 
 //router.get('/list',productController.listProducts);
 router.get('/list',productController.listProductsByCategoriesAndSubsCategories);
+router.get('/:id',productController.findProduct);
 router.delete('/:id',productController.deleteProduct);
 
 //router.put('/:IdCategory',productController.updateProduct)
