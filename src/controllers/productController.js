@@ -12,18 +12,29 @@ exports.createProduct = async ( req, res ) => {
   const { product } = req.body
   const { id } = req.params
 
-  let pc = await Category.findOne({
-    subCategorys : { $elemMatch : { products : { $elemMatch : {product: product}} }}
-  },
-  {
-     _id : false, 'subCategorys.products.product': true
-  });
+  try {
 
-  console.log(pc.subCategorys)
+    const {idCategory, idSubCategory, product} = req.body;
+   
+    const category = await Category.findOne({'_id':idCategory,'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
 
+    if(category){
 
-  /*let findSc = await Category.findOne({'subCategorys._id' : id},{_id : false ,'subCategorys.$':true})
-  console.log(pc)*/
+      await Category.findOneAndUpdate(
+        {'_id':idCategory,'subCategorys._id':idSubCategory},
+        {$push:{'subCategorys.$.products':product}}
+      )  
+
+      return res.status(200).json({code: status.ERROR, msg:"Producto creado satisfactoriamente"});
+
+    }
+
+    return res.status(400).json({msg:"No se pudo crear el producto"});
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ code: status.ERROR, msg: 'There was a mistake' });
+  }
 
 
 }
@@ -36,17 +47,89 @@ exports.updateProduct = async ( req, res ) => {
   
 }
 
+
+//En pruebas
 exports.deleteProduct = async ( req, res ) => {
   
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()});
+  }
+
+  try{
+
+    //findByIdAndDelete
+    /*const product = await Category.findOneAndDelete (
+      {'subCategorys.products._id':req.param.id},
+      {'subCategorys.products.$._id':req.param.id}
+    );
+      */
+
+      console.log(req.params.id);
+    
+      const product = await Category.find({'subCategorys.products':{$elemMatch:{_id:req.params.id}}},
+                                          {'subCategorys.products.$':1,_id:0});
+
+    res.json(product);
+    //console.log(subCategoria);
+
+    
+
+/*
+    if(productDelete){
+      return res.status(200).json({msg:`Product ${productDelete.product} is deleted`});
+    }
+
+    console.log("No se pudo eliminar");*/
+
+  }catch(error){
+    console.log(error);
+    return res.status(400).json({msg:'The requested operation could not be performed'});
+  }
+
 }
 
-exports.listProducts = async ( req, res ) => {
-  // check for mistakes.
+
+exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
+
   const errors = validationResult(req);
 
   if ( !errors.isEmpty() ) {
     return res.status(400).json({ code: status.ERROR, message: errors.array() });
   }
 
+
+  //console.log(req.query);
+  const {idCategories,idSubCategory} = req.query;
+
+  try {
+
+    const products = await Category.findOne(
+      {_id:idCategories,'subCategorys._id':idSubCategory},
+      {_id:0,'subCategorys.$':1}
+    );
+
+    //const total = await Category.countDocuments();
+
+    let productsItems = [],
+        total = 0;
+
+    if(products && products.subCategorys[0] && products.subCategorys[0].products){
+      
+      productsItems = products.subCategorys[0].products;
   
-}
+      total = productsItems.length;
+
+    }
+    
+    return res.json({ code: status.OK, products: productsItems, total });
+    
+  } catch (error) {
+    
+    return res.json({ code: status.ERROR, message: 'Internal server error' });
+
+  }
+
+};
+
