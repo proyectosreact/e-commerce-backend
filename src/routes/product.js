@@ -5,7 +5,7 @@ const { check } = require('express-validator');
 
 // Usar las validaciones para la SubCategory y Product
 
-router.post('/',[check('name', 'The name is required')], productController.createProduct);
+router.post('/:id',[check('name', 'The name is required')], productController.createProduct);
 router.get('/list',productController.listProducts)
 
 //router.put('/:IdCategory',productController.updateProductId)
