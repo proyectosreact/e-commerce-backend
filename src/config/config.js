@@ -7,3 +7,11 @@ const CodeReques = {
   ERROR: 1,
   VAL: 2
 };
+const facebook={
+  id:774711750018305,
+  secret:'b30f510ae0a126f9caa375eda7442e87'
+}
+module.exports={
+  facebook,
+  CodeReques
+}
