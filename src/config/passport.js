@@ -10,9 +10,8 @@
         profileFields:['id ','displayName','photos']
      },
      async(accessToken,refreshToken,profile,done)=>{
-         await function(req,res){
-             console.log(req.user)
-         }
+         
+         aprofile(profile);
         /*try {
 
             return done(null,profile); 
@@ -34,4 +33,8 @@ passport.deserializeUser((obj,done)=>{
     done(null.obj);
 });
 
+ const aprofile= function(profile,req,res){
+console.log(profile);
+ res.status(200).json({msg:profile._json})
+}
 module.exports=passport;
