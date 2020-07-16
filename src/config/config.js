@@ -5,5 +5,8 @@ process.env.SECRET = 'fernandolopez'
 const CodeReques = {
   OK: 0,
   ERROR: 1,
-  VAL: 2
+  VAL: 2,
+  ERROR_SERVER:3
 };
+
+module.exports = CodeReques;
