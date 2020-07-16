@@ -7,9 +7,8 @@ const { check } = require('express-validator');
 
 //router.post('/',[check('name', 'The name is required')], productController.createProduct);
 router.post('/',[
-    check('idSubCategory', 'The idSubCategory is required').not().isEmpty(),
-    check('product', 'The product is required').not().isEmpty(),
-    check('product.price', 'The price is required').not().isEmpty()
+    /*check('id_subCategory', 'The idSubCategory is required').not().isEmpty(),
+    check('product', 'The product is required').not().isEmpty()*/
 ],
 productController.createProduct);
 
@@ -17,7 +16,7 @@ productController.createProduct);
 //router.get('/list',productController.listProducts);
 /*router.get('/list',productController.listProductsByCategoriesAndSubsCategories);*/
 router.get('/list',productController.listProductBySubCategory);
-router.get('/:id',productController.findProduct);
+router.get('',productController.findProduct);
 router.delete('/:id',productController.deleteProduct);
 router.put('/:id',productController.updateProduct);
 
