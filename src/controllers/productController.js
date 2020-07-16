@@ -1,45 +1,44 @@
 const { validationResult } = require('express-validator');
 const status = require('../config/config');
 const Category = require('../models/category');
+const mongooseTypes = require('mongoose').Types;
+const { isValidObjectId, Mongoose } = require('mongoose');
 
 exports.createProduct = async ( req, res ) => {
   
   const errors = validationResult(req);
+  
   if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array()} );
   }
   
-  const { product } = req.body
-  const { id } = req.params
-
   try {
 
-    const {idCategory, idSubCategory, product} = req.body;
+    const {idSubCategory, product} = req.body;
    
-    const category = await Category.findOne({'_id':idCategory,'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
-
+    const category = await Category.findOne({'subCategorys._id':idSubCategory,
+                    'subCategorys.products.product':{'$ne':product.product}},{'subCategorys.$':1,_id:0});
+    
     if(category){
 
-      await Category.findOneAndUpdate(
-        {'_id':idCategory,'subCategorys._id':idSubCategory},
+      const findProduct = await Category.findOneAndUpdate(
+        {'subCategorys._id':idSubCategory},
         {$push:{'subCategorys.$.products':product}}
-      )  
+      );  
 
-      return res.status(200).json({code: status.ERROR, msg:"Producto creado satisfactoriamente"});
+      return res.status(200).json({code: status.OK, msg:"Producto creado satisfactoriamente", data: findProduct});
 
     }
 
-    return res.status(400).json({msg:"No se pudo crear el producto"});
+    return res.status(404).json({ code: status.ERROR, msg:"No se pudo crear el producto"});
     
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({ code: status.ERROR, msg: 'There was a mistake' });
+    return res.status(500).json({ code: status.ERROR_SERVER, msg: 'There was a mistake' });
   }
-
 
 }
 
-exports.findProduct = async ( req, res ) => {
+exports.updateProduct = async ( req, res ) => {
   
   const errors = validationResult(req);
 
@@ -48,39 +47,52 @@ exports.findProduct = async ( req, res ) => {
   }
 
   try{
-
+    
     const {id} = req.params;
+    const idProduct = new mongooseTypes.ObjectId(id);
 
-    const product = await Category.findOne({'subCategorys.products._id':id},{'subCategorys.$':1});
+    const category = await Category.findOne({'subCategorys.products._id':id},{'subCategorys.$':1});
 
-    if(product){
-      
-      product.subCategorys[0].products.forEach(product=>{
-  
-        if(product._id == id){
-  
-          return res.status(200).json({"data":{product},code:status.OK});
-  
+    let product=null;
+
+    if(category){
+
+      const idCategory = category._id;
+      const idSubCategory = category.subCategorys[0]._id;
+      console.log(idSubCategory);
+      product = await Category.updateOne({"_id":new mongooseTypes.ObjectId(category._id)},
+      {
+        "$push": {
+            "subCategorys.$[i].products.$[j]": req.body
         }
-        
-      });
-
-    }else{
-
-      res.status(400).json({"data":{product},code:status.ERROR});
-
+      },
+      arrayFilters = [
+          {
+            "i._id": new mongooseTypes.ObjectId(idSubCategory),
+            "j._id": new mongooseTypes.ObjectId(id)
+          }
+        ]
+      );
     }
 
+    /*const product = await Category.findOneAndUpdate({'subCategorys.products._id':idProduct},{
+      "$set" : {
+        'subCategorys.$.products.$':req.body
+      }
+    });*/
+
+    console.log(product);
+
+    res.status(200).json({category});
+
   }catch(error){
-    
-    res.status(500).json({"data":{msg:"Server Error",code:status.ERROR_SERVER}});
+
+    console.log(error);
+
+    res.status(500).json({msg:"problem"});
 
   }
 
-}
-
-exports.updateProduct = async ( req, res ) => {
-  
 }
 
 
@@ -126,8 +138,7 @@ exports.deleteProduct = async ( req, res ) => {
 
 }
 
-
-exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
+exports.findProduct = async (req,res) => {
 
   const errors = validationResult(req);
 
@@ -135,37 +146,86 @@ exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
     return res.status(400).json({ code: status.ERROR, message: errors.array() });
   }
 
+  try{
 
-  //console.log(req.query);
-  const {idCategories,idSubCategory} = req.query;
+    const {id} = req.params;
+    const idProduct = new mongooseTypes.ObjectId(id);
 
-  try {
+    const product = await Category.aggregate([
+      {
+        $match:{
+          'subCategorys.products._id':idProduct
+        }
+      },
+      {
+        $unwind: {
+          'path': '$subCategorys'
+        }
+      },
+      {
+        $project: {
+          'products':'$subCategorys.products',
+          _id:0 
+        } 
+      },
+      {
+        $unwind: {
+          'path': '$products'
+        }
+      },
+      {
+        $match: {
+          'products._id': idProduct
+        }
+      }
+    ]);
 
-    const products = await Category.findOne(
-      {_id:idCategories,'subCategorys._id':idSubCategory},
-      {_id:0,'subCategorys.$':1}
-    );
+    if(product){
 
-    //const total = await Category.countDocuments();
+      res.status(202).json({code:status.OK,'data':product[0].products});
 
-    let productsItems = [],
-        total = 0;
+    }else{
 
-    if(products && products.subCategorys[0] && products.subCategorys[0].products){
-      
-      productsItems = products.subCategorys[0].products;
-  
-      total = productsItems.length;
+      res.status(404).json({code:status.ERROR});
 
     }
-    
-    return res.json({ code: status.OK, products: productsItems, total });
-    
-  } catch (error) {
-    
-    return res.json({ code: status.ERROR, message: 'Internal server error' });
+
+  }catch(error){
+    console.log(error);
+    res.status(500).json({"code":status.ERROR_SERVER,"msg":"Server Error"});
 
   }
+
+};
+
+exports.listProductBySubCategory = async (req, res) => {
+
+  const errors = validationResult(req);
+
+  if ( !errors.isEmpty() ) {
+    return res.status(400).json({ code: status.ERROR, message: errors.array() });
+  }
+
+  try{
+
+    const {idSubCategory} = req.query; 
+
+    const subCategory = await Category.findOne({'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
+
+    if(subCategory){
+
+      res.status(200).json({'data':subCategory.subCategorys[0].products||[]});      
+
+    }else{
+
+      res.status(404).json({'code':status.ERROR,'data':[]});
+
+    }
+
+  }catch(error){
+    res.status(500).json({"code":status.ERROR_SERVER,"msg":"Server Error"});
+  }
+
 
 };
 
