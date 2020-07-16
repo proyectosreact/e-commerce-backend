@@ -1,6 +1,7 @@
 const express = require('express');
 const connectedDB = require('./config/dataBase');
 const cors = require('cors');
+const appMulterConfig = require('./config/multer');
 
 
 //make server
@@ -21,6 +22,10 @@ app.use(cors());
 
 //PORT app
 const PORT = process.env.PORT || 4000;
+
+//cloudinary
+appMulterConfig(app);
+
 
 //Import route user
 

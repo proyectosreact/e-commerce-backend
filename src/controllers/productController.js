@@ -1,135 +1,180 @@
-const { validationResult } = require('express-validator');
 const status = require('../config/config');
 const Category = require('../models/category');
+const Product = require('../models/product');
+const mongooseTypes = require('mongoose').Types;
+const { isValidObjectId, Mongoose } = require('mongoose');
+const {isArrayError} = require('../helpers/validation');
+const cloudinary = require('cloudinary');
+const {unlink} = require('fs-extra');
 
-exports.createProduct = async ( req, res ) => {
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+});
+
+exports.createProduct = async ( req, res) => {
   
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array()} );
-  }
-  
-  const { product } = req.body
-  const { id } = req.params
+  if(isArrayError(req, res)) return;
 
-  try {
+  try{
 
-    const {idCategory, idSubCategory, product} = req.body;
-   
-    const category = await Category.findOne({'_id':idCategory,'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
+    const {product} = req.body;
+    
+    const productFind = await Product.findOne({'product':product});
 
-    if(category){
+    if(!productFind){
 
-      await Category.findOneAndUpdate(
-        {'_id':idCategory,'subCategorys._id':idSubCategory},
-        {$push:{'subCategorys.$.products':product}}
-      )  
+      const newProduct = new Product(req.body);
+      
+      const result = await cloudinary.v2.uploader.upload(req.file.path);
 
-      return res.status(200).json({code: status.ERROR, msg:"Producto creado satisfactoriamente"});
+      await unlink(req.file.path);
+      
+      newProduct.uri = {
+        public_id: result.public_id,
+        path: result.url,//secure_url para https
+        name: req.file.originalname
+      };
+
+      await newProduct.save();
+
+      return res.status(201).json({code:status.OK,msg:'Product created',data:newProduct});
+
+    }else{
+
+      return res.status(404).json({code:status.ERROR,"msg":"The product exists"});
 
     }
 
-    return res.status(400).json({msg:"No se pudo crear el producto"});
-    
-  } catch (error) {
+  }catch(error){
+
     console.log(error);
-    return res.status(400).json({ code: status.ERROR, msg: 'There was a mistake' });
+
+    res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
+
   }
 
-
-}
-
-exports.findProduct = async ( req, res ) => {
-  
-}
+};
 
 exports.updateProduct = async ( req, res ) => {
   
+  if(isArrayError(req, res)) return;
+
+  try{
+
+    const {id} = req.params;
+    
+    const product = await Product.findOneAndUpdate({'_id':id},{
+      $set: req.body
+    },{new:true});
+
+    if(product){
+
+      return res.status(200).json({code:status.OK,msg:'Product actualizado',data:product});
+
+    }else{
+
+      return res.status(404).json({code:status.ERROR,"msg":"El producto no existe"});
+
+    }
+
+  }catch(error){
+
+    res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
+
+  }
+
 }
 
 
 //En pruebas
 exports.deleteProduct = async ( req, res ) => {
   
-  const errors = validationResult(req);
-
-  if(!errors.isEmpty()){
-    return res.status(400).json({errors: errors.array()});
-  }
+  if(isArrayError(req, res)) return;
 
   try{
 
-    //findByIdAndDelete
-    /*const product = await Category.findOneAndDelete (
-      {'subCategorys.products._id':req.param.id},
-      {'subCategorys.products.$._id':req.param.id}
-    );
-      */
-
-      console.log(req.params.id);
+    const {id} = req.params;
     
-      const product = await Category.find({'subCategorys.products':{$elemMatch:{_id:req.params.id}}},
-                                          {'subCategorys.products.$':1,_id:0});
-
-    res.json(product);
-    //console.log(subCategoria);
-
+    const product = await Product.findOneAndUpdate({'_id':id, 'enable':true},{
+      $set: {
+        'enable': false
+      }
+    },{new:true});
     
+    if(product){
 
-/*
-    if(productDelete){
-      return res.status(200).json({msg:`Product ${productDelete.product} is deleted`});
+      return res.status(200).json({code:status.OK,msg:'Producto eliminado',data:product});
+
+    }else{
+
+      return res.status(404).json({code:status.ERROR,"msg":"El producto no existe o ya se encuentra inhabilitado"});
+
     }
 
-    console.log("No se pudo eliminar");*/
-
   }catch(error){
-    console.log(error);
-    return res.status(400).json({msg:'The requested operation could not be performed'});
+
+    res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
+
   }
 
 }
 
+exports.findProduct = async (req,res) => {
 
-exports.listProductsByCategoriesAndSubsCategories = async( req, res) => {
+  if(isArrayError(req, res)) return;
 
-  const errors = validationResult(req);
+  try{
 
-  if ( !errors.isEmpty() ) {
-    return res.status(400).json({ code: status.ERROR, message: errors.array() });
-  }
+    const {id} = req.query;
 
+    let products = id ? await Product.find({_id:id}) : await Product.find();
 
-  //console.log(req.query);
-  const {idCategories,idSubCategory} = req.query;
+    if(products){
 
-  try {
+      return res.status(200).json({code:status.OK,data:products});
 
-    const products = await Category.findOne(
-      {_id:idCategories,'subCategorys._id':idSubCategory},
-      {_id:0,'subCategorys.$':1}
-    );
+    }else{
 
-    //const total = await Category.countDocuments();
-
-    let productsItems = [],
-        total = 0;
-
-    if(products && products.subCategorys[0] && products.subCategorys[0].products){
-      
-      productsItems = products.subCategorys[0].products;
-  
-      total = productsItems.length;
+      return res.status(404).json({code:status.ERROR,data:[]});
 
     }
-    
-    return res.json({ code: status.OK, products: productsItems, total });
-    
-  } catch (error) {
-    
-    return res.json({ code: status.ERROR, message: 'Internal server error' });
+
+  }catch(error){
+
+    console.log(error);
+
+    res.status(500).json({"code":status.ERROR_SERVER,"msg":"Server Error"});
 
   }
+
+};
+
+exports.listProductBySubCategory = async (req, res) => {
+
+  if(isArrayError(req, res)) return;
+
+  try{
+
+    const {idSubCategory} = req.query; 
+
+    const subCategory = await Category.findOne({'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
+
+    if(subCategory){
+
+      res.status(200).json({'data':subCategory.subCategorys[0].products||[]});      
+
+    }else{
+
+      res.status(404).json({'code':status.ERROR,'data':[]});
+
+    }
+
+  }catch(error){
+    res.status(500).json({"code":status.ERROR_SERVER,"msg":"Server Error"});
+  }
+
 
 };
 

@@ -75,12 +75,14 @@ exports.showScId = async (req, res) =>{
     try{
         if (id != null ) {
             let showSub = await Category.find({
-                subCategorys : { $elemMatch : { _id : id }}
+                subCategorys : { $elemMatch : { _id : id , 'subCategory' : subCategory}}
             },
             {
-               _id : false, 'subCategorys.subCategory': subCategory, 
+               _id : false, 'subCategorys.subCategory': true, 
             });
             
+            console.log(showSub);
+
             if( showSub ){                
                 
                 return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub });

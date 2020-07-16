@@ -8,25 +8,7 @@ CategorySchema = new Schema({
     subCategorys:[{
         subCategory:{
             type: String,
-            
-        },
-        products:[{
-            product:{
-                type: String,
-            },
-            sku:{
-                type: String
-            },
-            uri:{
-                type: String
-            },
-            price:{
-                type: Number
-            },
-            stock:{
-                type: String
-            },
-             }]
+        }
     }]
 },{ timestamps:true }
 )
