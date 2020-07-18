@@ -21,9 +21,13 @@ const UserSchema = mongoose.Schema({
   direction: [{}],
   resetLink: {
     type: String,
-    default: ''
+    default: ' '
   },
   verify: false,
+  rol:{
+    Type: String,
+    default: 'user'
+  }
 }, {
   timestamps: true
 });
