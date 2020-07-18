@@ -1,7 +1,5 @@
 const Category = require('../models/category');
-const {
-    validationResult
-} = require('express-validator');
+const { validationResult } = require('express-validator');
 
 
 exports.createCategory = async(req, res) => {
@@ -15,10 +13,10 @@ exports.createCategory = async(req, res) => {
     }
 
     const { category } = req.body;
-
+    //console.log(category)
 
     try {
-        let categoryName = await Category.findOne({category});
+        let categoryName = await Category.findOne({ category });
 
         if (categoryName) {
             return res.status(400).json({
@@ -26,7 +24,7 @@ exports.createCategory = async(req, res) => {
             });
         }
 
-        categoryName = new Category({category});
+        categoryName = new Category({ category });
         await categoryName.save()
 
         res.json({
@@ -40,7 +38,6 @@ exports.createCategory = async(req, res) => {
         });
     }
 }
-
 exports.queryCategory = async(req, res) => {
     
     // Verify that we do not have errors.
@@ -52,11 +49,11 @@ exports.queryCategory = async(req, res) => {
     try {
         // Request to get all Categories in the database and list the category and subCategory name.
         let category = await Category.find({}, { _id: false, category: true, subCategorys: true });
-
+        let countDoc = await Category.countDocuments();
         return res.json({
             status: true,
             category,
-            
+            countDoc            
         });
     } catch (error) {
         return res.status(400).json({
@@ -95,7 +92,7 @@ exports.updateCategoryId = async(req, res) => {
 
     const {category} = req.body
     try{
-    let categoryUpdate = await Category.findByIdAndUpdate(req.params.id, {category}, {new:true})
+    let categoryUpdate = await Category.findByIdAndUpdate(req.params.id, { category }, {new : true})
     if(categoryUpdate){
         return res.status(200).json({msg: `Category ${category} is updated`})
     }}catch(err){
