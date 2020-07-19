@@ -31,7 +31,7 @@ ProductSchema = new Schema({
         default: 0
     },
     stock:{
-        type: String,
+        type: Number,
         default: 0
     },
     id_subCategory:{
