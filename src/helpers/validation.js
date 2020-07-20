@@ -1,7 +1,8 @@
 const { validationResult } = require('express-validator');
 const validation = {};
+const Id = require('valid-objectid');
 const status = require("../config/config");
-
+/*
 validation.isArrayError = (req, res) => {
     const errors = validationResult(req);
     if ( !errors.isEmpty() ) {
@@ -11,5 +12,8 @@ validation.isArrayError = (req, res) => {
         return false;
     }
 };
+*/
+
+validation.validateIdMongoDb = (value) => Id.isValid(value);
 
 module.exports = validation;
