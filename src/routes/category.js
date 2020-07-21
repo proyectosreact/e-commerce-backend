@@ -8,6 +8,6 @@ router.get('/', categoryController.queryCategory)
 router.put('/update/:id', categoryController.updateCategoryId)
 router.delete('/delete/:id', categoryController.deleteCategoryId)
       
-router.get('/IdCategory', categoryController.queryCategoryId)
+router.get('/:id', categoryController.queryCategoryId)
 
 module.exports = router;

@@ -1,10 +1,7 @@
 const status = require('../config/config');
-const Category = require('../models/category');
 const Product = require('../models/product');
-const mongooseTypes = require('mongoose').Types;
-const { isValidObjectId, Mongoose } = require('mongoose');
-const {isArrayError} = require('../helpers/validation');
 const cloudinary = require('cloudinary');
+const { addImage, deleteImage } = require('../helpers/cloudinary');
 const {unlink} = require('fs-extra');
 
 cloudinary.config({
@@ -14,8 +11,6 @@ cloudinary.config({
 });
 
 exports.createProduct = async ( req, res) => {
-  
-  if(isArrayError(req, res)) return;
 
   try{
 
@@ -24,28 +19,30 @@ exports.createProduct = async ( req, res) => {
     const productFind = await Product.findOne({'product':product});
 
     if(!productFind){
-
+      
       const newProduct = new Product(req.body);
-      
-      const result = await cloudinary.v2.uploader.upload(req.file.path);
 
-      await unlink(req.file.path);
-      
+      let result;
+
+      if(req.file){
+        
+        result = await addImage(req.file.path,cloudinary);
+
+      }
+
       newProduct.uri = {
-        public_id: result.public_id,
-        path: result.url,//secure_url para https
-        name: req.file.originalname
+        public_id: result?result.public_id:'',
+        path: result?result.url:'',//secure_url para https
+        name: req.file?req.file.originalname:''
       };
-
+      
       await newProduct.save();
-
-      return res.status(201).json({code:status.OK,msg:'Product created',data:newProduct});
-
-    }else{
-
-      return res.status(404).json({code:status.ERROR,"msg":"The product exists"});
+      
+      return res.status(201).json({code:status.OK,msg:'Producto creado',data:newProduct});
 
     }
+
+    return res.status(404).json({code:status.ERROR,"msg":"El producto ya existe"});
 
   }catch(error){
 
@@ -53,59 +50,119 @@ exports.createProduct = async ( req, res) => {
 
     res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
 
+  }finally{
+    if(req.file){
+      await unlink(req.file.path);
+    }
   }
 
 };
 
 exports.updateProduct = async ( req, res ) => {
   
-  if(isArrayError(req, res)) return;
-
   try{
 
     const {id} = req.params;
     
-    const product = await Product.findOneAndUpdate({'_id':id},{
-      $set: req.body
-    },{new:true});
+    const findProduct = await Product.findOne({'_id':id,'enable':true});
 
-    if(product){
+    if(findProduct){
 
-      return res.status(200).json({code:status.OK,msg:'Product actualizado',data:product});
+      const findNameProduct = await Product.findOne(
+          {
+            _id: { $ne:id },
+            product: req.body.product,
+            enable: true
+          }
+      );
 
-    }else{
+      if(findNameProduct){
 
-      return res.status(404).json({code:status.ERROR,"msg":"El producto no existe"});
+        return res.status(404).json({code:status.ERROR,msg:"El nombre del producto ya existe"});
+
+      }
+
+      let newImage;
+      
+      if(findProduct.uri.public_id != ''){
+
+        await deleteImage(findProduct.uri.public_id,cloudinary);
+      
+      }
+
+      if(req.file){
+
+        newImage = await addImage(req.file.path,cloudinary);
+
+      }
+
+      const attrs = {
+        ...req.body,
+        uri:{
+          public_id: newImage?newImage.public_id:'',
+          path: newImage?newImage.url:'',//secure_url para https
+          name: req.file?req.file.originalname:''
+        }
+      };
+      
+      const product = await Product.findOneAndUpdate(
+        {'_id':id},
+        {$set: attrs},
+        {new:true}
+      );
+  
+      if(product){
+  
+        return res.status(200).json({code:status.OK,msg:'Producto actualizado',data:product});
+  
+      }
 
     }
 
-  }catch(error){
+    return res.status(404).json({code:status.ERROR,"msg":"No se pudo actualizar el producto"});
 
+  }catch(error){
+    console.log(error);
     res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
 
+  }finally{
+    if(req.file){
+      await unlink(req.file.path);
+    }
   }
 
 }
 
 
-//En pruebas
 exports.deleteProduct = async ( req, res ) => {
   
-  if(isArrayError(req, res)) return;
-
   try{
 
     const {id} = req.params;
     
     const product = await Product.findOneAndUpdate({'_id':id, 'enable':true},{
       $set: {
-        'enable': false
+        'enable': false,
+        'uri': {
+          'public_id': "",
+          'path': "",
+          'name': ""
+        }
       }
-    },{new:true});
+    }/*,{new:true}*/);
     
     if(product){
 
-      return res.status(200).json({code:status.OK,msg:'Producto eliminado',data:product});
+      //si tiene una uri, la tenemos que eliminar...
+      if(product.uri.public_id != ''){
+
+        await deleteImage(product.uri.public_id, cloudinary);
+
+        //console.log("Imagen eliminada de cloudinary");
+
+      }
+
+      return res.status(200).json({code:status.OK,msg:'Producto eliminado'});
 
     }else{
 
@@ -114,22 +171,29 @@ exports.deleteProduct = async ( req, res ) => {
     }
 
   }catch(error){
-
+    //console.log(error)
     res.status(500).json({code:status.ERROR_SERVER,"msg":"Server Error"});
 
   }
 
 }
-
+/**
+ * 
+ * @param {Object} req 
+ * @param {Object} res 
+ * @description Si se le pasa un query param ?id=wdwdw
+ * entonces buscará el producto con ese id, de lo contrario
+ * nos devolverá todos los productos.
+ */
 exports.findProduct = async (req,res) => {
-
-  if(isArrayError(req, res)) return;
 
   try{
 
     const {id} = req.query;
 
-    let products = id ? await Product.find({_id:id}) : await Product.find();
+    const products = id ? 
+                  await Product.findOne({_id:id,enable:true}) : 
+                  await Product.find({enable:true});
 
     if(products){
 
@@ -137,7 +201,7 @@ exports.findProduct = async (req,res) => {
 
     }else{
 
-      return res.status(404).json({code:status.ERROR,data:[]});
+      return res.status(404).json({code:status.ERROR,msg:"No se encontraron productos",data:[]});
 
     }
 
@@ -153,17 +217,15 @@ exports.findProduct = async (req,res) => {
 
 exports.listProductBySubCategory = async (req, res) => {
 
-  if(isArrayError(req, res)) return;
-
   try{
 
     const {idSubCategory} = req.query; 
 
-    const subCategory = await Category.findOne({'subCategorys._id':idSubCategory},{'subCategorys.$':1,_id:0});
-
+    const subCategory = await Product.find({'id_subCategory':idSubCategory});
+    
     if(subCategory){
 
-      res.status(200).json({'data':subCategory.subCategorys[0].products||[]});      
+      res.status(200).json({'code':status.OK,'data':subCategory});      
 
     }else{
 
@@ -172,9 +234,9 @@ exports.listProductBySubCategory = async (req, res) => {
     }
 
   }catch(error){
+    console.log(error);
     res.status(500).json({"code":status.ERROR_SERVER,"msg":"Server Error"});
+    
   }
 
-
 };
-

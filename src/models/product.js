@@ -3,13 +3,11 @@ const {Schema, model}= require('mongoose'),
 ProductSchema = new Schema({
     product:{
         type: String,
-        unique: true,
         required: true,
         trim: true
     },
     sku:{
         type: String,
-        unique: true,
         default: () => generarSku()
     },
     uri:{
@@ -31,12 +29,12 @@ ProductSchema = new Schema({
         default: 0
     },
     stock:{
-        type: String,
+        type: Number,
         default: 0
     },
     id_subCategory:{
         type: Schema.Types.ObjectId,
-        ref: 'Category.subCategorys'
+        ref: 'Category'
     },
     enable:{
         type: Boolean,
