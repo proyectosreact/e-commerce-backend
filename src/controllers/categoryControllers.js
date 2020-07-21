@@ -1,5 +1,6 @@
 const Category = require('../models/category');
 const { validationResult } = require('express-validator');
+const status = require('../config/config')
 
 
 exports.createCategory = async(req, res) => {
@@ -48,11 +49,11 @@ exports.queryCategory = async(req, res) => {
     }
     try {
         // Request to get all Categories in the database and list the category and subCategory name.
-        let category = await Category.find({}, { _id: false, category: true, subCategorys: true });
+        let data = await Category.find({});
         let countDoc = await Category.countDocuments();
         return res.json({
-            status: true,
-            category,
+            code: status.OK,
+            data,
             countDoc            
         });
     } catch (error) {
@@ -71,12 +72,15 @@ exports.queryCategoryId = async(req, res) => {
    }
    try {
        // Parameter that we receive in the request.
-       let { id } = req.query;
-       let category = await Category.findOne({ category: id }, { category: true, _id: false });
-       if (category) {
-           return res.json({code: status.OK, msg: `${showNameUser.name}`})
+       let { id } = req.params;
+       console.log(id)
+       let data = await Category.findOne({_id: req.params.id})
+       console.log(data)
+       if(!data){
+           res.status(401).json('Category does not exist')
        }
-       return res.status(400).json({ msg: `Category does not exist`});
+       res.status(200).json({code: status.OK, data})
+       
 
 
    } catch (error) {

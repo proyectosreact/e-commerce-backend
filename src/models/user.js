@@ -24,6 +24,10 @@ const UserSchema = mongoose.Schema({
     default: ''
   },
   verify: false,
+  rol:{
+    type: String,
+    default: 'user'
+  }
 }, {
   timestamps: true
 });

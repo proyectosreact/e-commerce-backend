@@ -45,8 +45,7 @@ exports.createSubCategory = async(req, res) => {
     }catch(err){
             res.status(400).json({msg: `The subcategory ${subCategory} could not be inserted correctly` })
     }
-}
-    
+}    
 exports.showSc = async(req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -55,13 +54,12 @@ exports.showSc = async(req, res) => {
         })
     }    
 
-    let showSc = await Category.find( {}, {_id:false, subCategorys:true})
+    let data = await Category.find( {}, {_id:false, subCategorys:true})
     let docTotal = await Category.countDocuments()
-    res.status(200).json({status : true, showSc, docTotal})
+    res.status(200).json({status : true, data, docTotal})
 
 
 }
-
 exports.showScId = async (req, res) =>{
 
     const errors = validationResult(req);
@@ -74,24 +72,24 @@ exports.showScId = async (req, res) =>{
 
     try{
         if (id != null ) {
-            let showSub = await Category.find({
+            let data = await Category.find({
                 subCategorys : { $elemMatch : { _id : id , 'subCategory' : subCategory}}
             },
             {
                _id : false, 'subCategorys.subCategory': true, 
             });
             
-            console.log(showSub);
+            console.log(data);
 
-            if( showSub ){                
+            if( data ){                
                 
-                return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub });
+                return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, data });
             }
                 
 
         }
         
-        let showSub = await Category.find({
+        let data = await Category.find({
             subCategorys : { $elemMatch : { subCategory : subCategory }}
         },
         {
@@ -102,9 +100,9 @@ exports.showScId = async (req, res) =>{
         console.log({'showSc.subCategorys' : subCategory})
         
 
-        if (showSc) {
+        if (data) {
 
-            return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub});
+            return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, data});
                       
         }
             //return res.status(400).json({ msg: `The ${subCategory} Subcategory does not exist, please check and ask again `});
@@ -133,13 +131,13 @@ exports.updateSc = async (req, res) => {
             {'subCategorys.$.subCategory': subCategory},{'subCategory.subCategory': true})
             
             console.log(updateSc)           
-            let showNewSc = await Category.findOne({
+            let data = await Category.findOne({
                 subCategorys : { $elemMatch : { _id : req.params.id }}
             },
             {
                 subCategorys : { $elemMatch : { _id : req.params.id }}
             })
-            res.status(200).json({ msg: `The update was successfull`, showNewSc})
+            res.status(200).json({ msg: `The update was successfull`, data})
         }    
         
     }catch(err){
@@ -161,11 +159,11 @@ exports.deleteSc = async (req, res) => {
     try{
         if (id != null ) {
             
-            let deleteSc = await Category.findOne({'subCategorys._id' : id})
+            let data = await Category.findOne({'subCategorys._id' : id})
             
             console.log(deleteSc)
             
-            res.status(200).json({ msg: `The delete was successful`, deleteSc})
+            res.status(200).json({ msg: `The delete was successful`, data})
         }    
         
     }catch(err){
