@@ -21,7 +21,7 @@ const UserSchema = mongoose.Schema({
   direction: [{}],
   resetLink: {
     type: String,
-    default: ''
+    default: ' '
   },
   verify: false,
   rol:{
