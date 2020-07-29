@@ -73,7 +73,7 @@ exports.showScId = async (req, res) =>{
     const {id} = req.params
 
     try{
-        if (id != null ) {
+       /* if (id != null ) {
             let showSub = await Category.find({
                 subCategorys : { $elemMatch : { _id : id }}
             },
@@ -105,7 +105,7 @@ exports.showScId = async (req, res) =>{
             return res.status(200).json({ mgs: `The requested Subcategory is: ${subCategory}`, showSub});
                       
         }
-            //return res.status(400).json({ msg: `The ${subCategory} Subcategory does not exist, please check and ask again `});
+        */    //return res.status(400).json({ msg: `The ${subCategory} Subcategory does not exist, please check and ask again `});
         
         
     }catch(err){

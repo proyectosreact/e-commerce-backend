@@ -5,6 +5,7 @@ const userController = require( '../controllers/userController' );
 const { check } = require('express-validator');
 
 
+
 //Make a user and send email to verify
 //api/user
 router.post( '/', [
